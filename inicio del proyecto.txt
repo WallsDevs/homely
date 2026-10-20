@@ -1,0 +1,3 @@
+Cliente:
+
+npm create vite@latest client -- --template react-ts

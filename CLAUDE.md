@@ -1,0 +1,67 @@
+# Homely
+
+Web para gestionar un hogar: tareas con planes semanales recurrentes, miembros, reportes de cumplimiento y gastos con metas. Multi-hogar, cada miembro con su cuenta.
+
+## Documentación (leer antes de implementar)
+
+| Doc | Contenido |
+|---|---|
+| [docs/00-vision.md](docs/00-vision.md) | Problema, objetivos, principios, no-objetivos |
+| [docs/01-usuarios-y-roles.md](docs/01-usuarios-y-roles.md) | Roles, matriz de permisos, flujo de alta |
+| [docs/02-modulos-funcionales.md](docs/02-modulos-funcionales.md) | **Requisitos por módulo (documento central)** |
+| [docs/03-modelo-de-datos.md](docs/03-modelo-de-datos.md) | Entidades, schema Prisma, índices, borrado por rango |
+| [docs/04-api.md](docs/04-api.md) | Convenciones REST, auth, errores, endpoints |
+| [docs/05-frontend.md](docs/05-frontend.md) | Arquitectura React, rutas, estado, responsive |
+| [docs/06-diseno-ui.md](docs/06-diseno-ui.md) | Sistema de diseño: tokens, tipografía, componentes |
+| [docs/07-arquitectura-backend.md](docs/07-arquitectura-backend.md) | Capas, carpetas, validación, jobs, seguridad |
+| [docs/08-stack-y-convenciones.md](docs/08-stack-y-convenciones.md) | Librerías y por qué, lint, tests, git, env |
+| [docs/09-roadmap.md](docs/09-roadmap.md) | Fases de implementación y criterios de "hecho" |
+
+## Stack
+
+- **Client:** React 19 + Vite + TypeScript, Tailwind CSS v4, React Router, TanStack Query, react-hook-form + Zod, Recharts, date-fns, lucide-react. PWA instalable.
+- **Server:** Node + Express 5 + TypeScript 7, Prisma 6 + PostgreSQL 17, Zod 4, JWT (access) + refresh en cookie httpOnly, `@node-rs/argon2`, pino, node-cron.
+- **Tooling:** npm workspaces (`client`, `server`, `shared`), Oxlint + Prettier, Vitest (+ Supertest en server), Docker Compose para Postgres local (puerto 5433).
+- Decisiones técnicas y su motivo: [docs/08-stack-y-convenciones.md](docs/08-stack-y-convenciones.md#decisiones-tomadas-en-la-fase-0-2026-10-19).
+
+## Principios innegociables
+
+1. **Minimalismo sofisticado.** Poco ruido visual, tipografía cuidada, una paleta neutra con un acento. Ver `06-diseno-ui.md`.
+2. **Mobile-first y 100 % responsive.** Toda pantalla funciona completa en móvil; crear una tarea o un gasto desde el celular toma segundos.
+3. **Rendimiento.** Code-splitting por ruta, caché con TanStack Query, consultas con índices, paginación por cursor, nada de N+1.
+4. **Código nivel senior.** Lo que sigue no es opcional.
+
+## Reglas de código
+
+- TypeScript `strict`. Prohibido `any`; usa `unknown` y estrecha.
+- Validar en los bordes con Zod: en el server cada ruta usa `endpoint({ body, query, params }, handler)` (`server/src/lib/endpoint.ts`); en el client, `api(path, { schema })` y formularios. Los schemas compartidos viven en `shared/`.
+- Fechas de día con `server/src/lib/dates.ts` (ISO `YYYY-MM-DD`, `startOfWeek`, `todayIn(tz)`); nunca `new Date()` para decidir "hoy".
+- Imports relativos con extensión `.ts`/`.tsx`. Alias `@/` en el client.
+- Capas en el server: `routes → controllers → services → repositories`. La lógica de negocio solo en `services`. Prisma solo en `repositories`.
+- Errores tipados (`AppError` con `code` y `status`); un único manejador global. Nunca `res.status(500)` a mano en un controller.
+- Todo dato se filtra por `householdId` obtenido de la membresía autenticada, **nunca** del body ni de la query.
+- Varios `ADMIN` por hogar con permisos idénticos. Un hogar nunca puede quedar sin admin.
+- Fechas: en BD en UTC; el "día" de una tarea o gasto se calcula con el `timezone` del hogar. Semana según `weekStartsOn` del hogar.
+- Dinero: `Decimal(12,2)` en BD, nunca `float`. En el client se formatea con `Intl.NumberFormat` y la `currency` del hogar.
+- Nombres en inglés en código, BD y API. Textos de UI en español.
+- Componentes pequeños y puros; estado de servidor en TanStack Query, estado de UI local en el componente. Sin Redux.
+- Cada feature nueva trae tests: unitarios de `services`, de integración de endpoints, y de componentes críticos.
+- Commits convencionales (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`).
+
+## Comandos (desde la raíz)
+
+```bash
+npm install              # instala todos los workspaces
+npm run db:up            # Postgres en Docker (localhost:5433)
+npm run db:migrate       # prisma migrate dev
+npm run db:seed          # datos de desarrollo (BORRA la BD de desarrollo)
+npm run dev              # server :4000 + client :5173 en paralelo
+npm test                 # tests de los tres workspaces (server usa homely_test)
+npm run typecheck        # tsc en los tres workspaces
+npm run lint             # oxlint + prettier --check   (lint:fix para corregir)
+npm run build            # shared → server → client
+```
+
+Usuarios del seed: `iveth@homely.dev` y `luis@homely.dev`, contraseña `homely1234` (ambos ADMIN).
+
+Estado actual: **Fase 0 completada.** Siguiente: Fase 1 (auth, hogar y miembros) en `docs/09-roadmap.md`.
