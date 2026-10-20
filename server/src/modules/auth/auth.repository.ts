@@ -36,6 +36,16 @@ export const authRepository = {
     return count;
   },
 
+  /** Marca el token como rotado (y revocado). Devuelve 0 si otra petición lo rotó antes. */
+  async markRotated(id: string): Promise<number> {
+    const now = new Date();
+    const { count } = await prisma.refreshToken.updateMany({
+      where: { id, revokedAt: null },
+      data: { revokedAt: now, rotatedAt: now },
+    });
+    return count;
+  },
+
   revokeFamily(familyId: string) {
     return prisma.refreshToken.updateMany({
       where: { familyId, revokedAt: null },

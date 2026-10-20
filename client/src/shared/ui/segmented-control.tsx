@@ -11,6 +11,8 @@ type SegmentedControlProps<T extends string> = {
   /** Muestra solo iconos; las etiquetas quedan para lectores de pantalla y como tooltip. */
   iconsOnly?: boolean;
   hideLabel?: boolean;
+  /** En móvil, si las opciones no caben, se desplazan en vez de recortarse. */
+  scrollable?: boolean;
   className?: string;
 };
 
@@ -22,6 +24,7 @@ export function SegmentedControl<T extends string>({
   onChange,
   iconsOnly = false,
   hideLabel = true,
+  scrollable = false,
   className,
 }: SegmentedControlProps<T>) {
   const name = useId();
@@ -32,7 +35,10 @@ export function SegmentedControl<T extends string>({
         {label}
       </legend>
       <div
-        className="grid gap-0.5 rounded-md bg-surface-2 p-0.5"
+        className={cn(
+          'grid gap-0.5 rounded-md bg-surface-2 p-0.5',
+          scrollable && 'max-md:flex max-md:[scrollbar-width:none] max-md:overflow-x-auto',
+        )}
         style={{ gridTemplateColumns: `repeat(${options.length}, minmax(0, 1fr))` }}
       >
         {options.map((option) => {
@@ -43,6 +49,7 @@ export function SegmentedControl<T extends string>({
               title={option.label}
               className={cn(
                 'flex h-9 min-w-0 cursor-pointer items-center justify-center gap-1.5 rounded-[5px] px-2 text-small transition-colors',
+                scrollable && 'max-md:shrink-0 max-md:px-3',
                 'has-focus-visible:ring-2 has-focus-visible:ring-accent',
                 selected
                   ? 'bg-surface font-medium text-fg shadow-sm'
@@ -58,7 +65,15 @@ export function SegmentedControl<T extends string>({
                 className="sr-only"
               />
               {option.icon && <span className="shrink-0 [&>svg]:size-4">{option.icon}</span>}
-              <span className={cn('truncate', iconsOnly && 'sr-only')}>{option.label}</span>
+              <span
+                className={cn(
+                  'truncate',
+                  scrollable && 'max-md:overflow-visible',
+                  iconsOnly && 'sr-only',
+                )}
+              >
+                {option.label}
+              </span>
             </label>
           );
         })}

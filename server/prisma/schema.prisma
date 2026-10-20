@@ -77,6 +77,8 @@ model RefreshToken {
   familyId  String
   expiresAt DateTime
   revokedAt DateTime?
+  /// Se rellena al rotarlo (no al cerrar sesión). Permite un margen de gracia ante recargas.
+  rotatedAt DateTime?
   userAgent String?
   createdAt DateTime  @default(now())
 

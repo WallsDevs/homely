@@ -2,6 +2,7 @@ import { authResponseSchema, sessionSchema } from '@homely/shared';
 import request from 'supertest';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { app, refreshCookieFrom, registerUser, resetDb } from '../../../tests/helpers.ts';
+import { prisma } from '../../lib/prisma.ts';
 
 beforeEach(resetDb);
 
@@ -108,10 +109,28 @@ describe('POST /auth/refresh', () => {
     expect(refreshCookieFrom(res)).not.toBe(user.cookie);
   });
 
-  it('si se reusa un token ya rotado, revoca toda la familia (posible robo)', async () => {
+  it('reusar un token recién rotado (recarga a mitad de la rotación) no cierra la sesión', async () => {
+    const user = await registerUser('Iveth');
+    await request(app).post('/api/v1/auth/refresh').set('Cookie', user.cookie).expect(200);
+
+    // El navegador no recibió la cookie nueva y vuelve a mandar la anterior.
+    const retry = await request(app).post('/api/v1/auth/refresh').set('Cookie', user.cookie);
+    expect(retry.status).toBe(200);
+    const again = await request(app)
+      .post('/api/v1/auth/refresh')
+      .set('Cookie', refreshCookieFrom(retry));
+    expect(again.status).toBe(200);
+  });
+
+  it('si se reusa un token rotado fuera del margen, revoca toda la familia (posible robo)', async () => {
     const user = await registerUser('Iveth');
     const first = await request(app).post('/api/v1/auth/refresh').set('Cookie', user.cookie);
     const rotatedCookie = refreshCookieFrom(first);
+    // Simula que la rotación ocurrió hace 5 minutos.
+    await prisma.refreshToken.updateMany({
+      where: { rotatedAt: { not: null } },
+      data: { rotatedAt: new Date(Date.now() - 5 * 60_000) },
+    });
 
     const reuse = await request(app).post('/api/v1/auth/refresh').set('Cookie', user.cookie);
     expect(reuse.status).toBe(401);
@@ -128,11 +147,12 @@ describe('POST /auth/refresh', () => {
 });
 
 describe('logout', () => {
-  it('revoca el refresh token actual', async () => {
+  it('revoca el refresh token actual, sin margen de gracia', async () => {
     const user = await registerUser('Iveth');
     const logout = await request(app).post('/api/v1/auth/logout').set('Cookie', user.cookie);
     expect(logout.status).toBe(204);
 
+    // Justo después del logout: un token cerrado a propósito nunca entra en el margen.
     const res = await request(app).post('/api/v1/auth/refresh').set('Cookie', user.cookie);
     expect(res.status).toBe(401);
   });

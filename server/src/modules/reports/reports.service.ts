@@ -65,7 +65,8 @@ export const reportsService = {
           member: { id: member.id, displayName: member.displayName, color: member.color },
           isActive: member.isActive,
           ...stats,
-          deltaRate: deltaOf(stats.rate, statsOf(mine(lastWeek)).rate),
+          // Comparar una semana a medias con una completa engaña: solo semanas cerradas.
+          deltaRate: isClosed ? deltaOf(stats.rate, statsOf(mine(lastWeek)).rate) : null,
           streak: streakOf(memberWeeksMap, lastClosedWeek, oldestWeek),
         };
       })
@@ -78,7 +79,10 @@ export const reportsService = {
       weekEnd,
       today,
       isClosed,
-      household: { ...household, deltaRate: deltaOf(household.rate, statsOf(lastWeek).rate) },
+      household: {
+        ...household,
+        deltaRate: isClosed ? deltaOf(household.rate, statsOf(lastWeek).rate) : null,
+      },
       members: memberWeeks,
       expenses,
     };

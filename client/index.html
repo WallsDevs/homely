@@ -7,20 +7,14 @@
     <meta name="theme-color" content="#FAFAF8" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0F1012" media="(prefers-color-scheme: dark)" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="64x64" href="/pwa-64x64.png" />
+    <!-- iOS: icono y modo pantalla completa al añadir a la pantalla de inicio. -->
+    <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Homely" />
     <title>Homely</title>
-    <script>
-      // Aplica el tema antes del primer pintado para evitar el destello de tema incorrecto.
-      (function () {
-        var theme = 'system';
-        try {
-          theme = localStorage.getItem('homely.theme') || 'system';
-        } catch (e) {}
-        var dark =
-          theme === 'dark' ||
-          (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-      })();
-    </script>
+    <script src="/theme-init.js"></script>
   </head>
   <body>
     <div id="root"></div>

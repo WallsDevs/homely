@@ -77,7 +77,21 @@ Ajustes respecto a lo planeado arriba, con su motivo. Prevalecen sobre las tabla
 | Postgres local | Docker en el puerto **5433** (`homely` y `homely_test`) | Evita choques con un Postgres instalado en 5432. |
 | Fuente | `@fontsource-variable/inter` servida por el propio sitio | Sin peticiones a terceros; la PWA solo precachea los subconjuntos latinos. |
 | Modales | `<dialog>` nativo (`shared/ui/sheet.tsx`) | Foco atrapado, Esc, `inert` del fondo y backdrop sin librerías. |
-| Hooks de git | **Pendiente**: `lint-staged` + `simple-git-hooks` | Se añaden en el primer commit; hoy `npm run lint` cubre lo mismo manualmente. |
+| Hooks de git | `simple-git-hooks` + `lint-staged` (oxlint --fix + prettier en pre-commit) | Instalados en Fase 6. Se activan con `npm install` (script `prepare`). |
+
+## Decisiones de la Fase 6 (2026-10-20)
+
+| Tema | Decisión | Motivo |
+|---|---|---|
+| Tests | **Vitest 4** | Cerraba vulnerabilidades críticas de `npm audit` (tinypool, @vitest/mocker). Requiere `@testing-library/dom` explícito. |
+| Clases CSS | `cn()` = `clsx` + **`tailwind-merge`** con los tamaños de texto propios registrados | Sin merge, `cn('p-4', 'p-0')` dejaba ambas clases y ganaba la que Tailwind generara después. |
+| E2E | **Playwright** (Chromium) contra el build de producción y la BD de test; proyectos `movil` (360 px) y `escritorio` (1280 px); capturas en `e2e/screenshots/` | Es la única forma de revisar el diseño real sin navegador a mano. Nunca toca la BD de desarrollo. |
+| Despliegue | **Un solo servicio**: el server entrega el client (`CLIENT_DIST_DIR`). `Dockerfile` multi-etapa con usuario `node` y `prisma migrate deploy` al arrancar | Mismo origen → sin CORS ni configuración de cookies cruzadas. |
+| CSP | Estricta, sin `unsafe-inline`; el script de tema se sirve como archivo (`theme-init.js`) | Un XSS no puede ejecutar scripts en línea ni cargar de terceros. |
+| Rate limit | Configurable por entorno; global 300/min (un hogar comparte IP), auth 10/min | 100/min se quedaba corto para dos personas navegando desde el mismo router. |
+| Refresh token | Margen de gracia de 30 s tras rotar (`rotatedAt`) | Una recarga a mitad de la rotación dejaba al navegador con la cookie vieja y cerraba la sesión. |
+| npm | `.npmrc` con `legacy-peer-deps=true` | npm 10 falla con `edgesOut` al resolver peers opcionales de `@hookform/resolvers`. |
+| Iconos PWA | PNG generados con `sharp` (`npm run icons -w @homely/client`) | iOS no acepta SVG como icono de pantalla de inicio. |
 
 ## Ajustes al scaffold actual (Fase 0) — ✅ hechos
 

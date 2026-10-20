@@ -15,9 +15,19 @@ export function AppLayout() {
     <TaskUIProvider>
       <ExpenseUIProvider>
         <div className="min-h-dvh md:flex">
+          <a
+            href="#contenido"
+            className="sr-only z-50 rounded-md bg-accent px-4 py-2 text-accent-fg focus:not-sr-only focus:fixed focus:top-3 focus:left-3"
+          >
+            Saltar al contenido
+          </a>
           <Sidebar onQuickAction={openQuickActions} />
 
-          <main className="min-w-0 flex-1 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-12">
+          <main
+            id="contenido"
+            tabIndex={-1}
+            className="min-w-0 flex-1 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-12"
+          >
             <div className="mx-auto w-full max-w-[1120px] px-4 pt-6 md:px-6 md:pt-8 lg:px-8 lg:pt-10">
               <Suspense fallback={<PageSkeleton />}>
                 <Outlet />

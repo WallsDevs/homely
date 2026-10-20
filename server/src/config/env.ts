@@ -15,6 +15,12 @@ const envSchema = z.object({
     .default('15m'),
   REFRESH_TTL_DAYS: z.coerce.number().int().positive().default(30),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
+  /** Peticiones por minuto e IP a la API. Un hogar suele compartir IP (el router de casa). */
+  RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(300),
+  /** Login, registro y unirse a un hogar: más estricto contra fuerza bruta. */
+  AUTH_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(10),
+  /** Carpeta del client compilado. Si existe (producción), el server también entrega la web. */
+  CLIENT_DIST_DIR: z.string().optional(),
   APP_VERSION: z.string().default(process.env['npm_package_version'] ?? '0.0.0'),
 });
 

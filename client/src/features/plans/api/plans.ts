@@ -22,11 +22,13 @@ export function usePlans({ enabled = true }: { enabled?: boolean } = {}) {
 /** Cambiar un plan genera o borra tareas: se refrescan planes y todas las vistas de tareas. */
 function useInvalidatePlansAndTasks() {
   const queryClient = useQueryClient();
-  return () =>
-    Promise.all([
+  // Sin esperar: el formulario se cierra al confirmar el server y las vistas se refrescan detrás.
+  return () => {
+    void Promise.all([
       queryClient.invalidateQueries({ queryKey: planKeys.all }),
       queryClient.invalidateQueries({ queryKey: taskKeys.all }),
     ]);
+  };
 }
 
 export function useCreatePlan() {

@@ -17,6 +17,13 @@ import { authRepository } from './auth.repository.ts';
 
 const DAY_MS = 86_400_000;
 
+/**
+ * Margen tras rotar un refresh token en el que volver a presentarlo no se considera robo.
+ * Cubre recargas o navegaciones en mitad de la rotación y respuestas perdidas en redes móviles:
+ * el navegador se queda con la cookie anterior. Pasado el margen, el reuso revoca la familia.
+ */
+const ROTATION_GRACE_MS = 30_000;
+
 export type IssuedTokens = { accessToken: string; refreshToken: string; refreshExpiresAt: Date };
 
 async function issueTokens(
@@ -73,24 +80,33 @@ export const authService = {
 
   /**
    * Rotación de refresh token. Cada uso emite uno nuevo de la misma familia y revoca el anterior.
-   * Si llega un token ya revocado, alguien lo copió: se revoca toda la familia.
+   * Si llega un token ya rotado fuera del margen de gracia (o uno cerrado con logout), alguien
+   * lo copió: se revoca toda la familia.
    */
   async refresh(refreshToken: string | undefined, userAgent: string | null): Promise<IssuedTokens> {
     if (!refreshToken) throw invalidSession();
 
     const stored = await authRepository.findRefreshToken(sha256(refreshToken));
-    if (!stored) throw invalidSession();
+    if (!stored || stored.expiresAt <= new Date()) throw invalidSession();
+
+    const withinGrace = (rotatedAt: Date | null) =>
+      rotatedAt !== null && Date.now() - rotatedAt.getTime() < ROTATION_GRACE_MS;
 
     if (stored.revokedAt) {
+      if (withinGrace(stored.rotatedAt)) {
+        return issueTokens(stored.userId, userAgent, stored.familyId);
+      }
       await authRepository.revokeFamily(stored.familyId);
       throw invalidSession();
     }
-    if (stored.expiresAt <= new Date()) throw invalidSession();
 
-    // Dos peticiones simultáneas con el mismo token: solo una gana la revocación.
-    if ((await authRepository.revokeIfActive(stored.id)) === 0) {
-      await authRepository.revokeFamily(stored.familyId);
-      throw invalidSession();
+    // Dos peticiones simultáneas con el mismo token: la que pierde la carrera entra en el margen.
+    if ((await authRepository.markRotated(stored.id)) === 0) {
+      const latest = await authRepository.findRefreshToken(stored.tokenHash);
+      if (!withinGrace(latest?.rotatedAt ?? null)) {
+        await authRepository.revokeFamily(stored.familyId);
+        throw invalidSession();
+      }
     }
     return issueTokens(stored.userId, userAgent, stored.familyId);
   },

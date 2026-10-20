@@ -3,6 +3,7 @@ import { createBrowserRouter, type RouteObject } from 'react-router';
 import { RequireAdmin, RequireGuest, RequireHousehold, RequireNoHousehold } from './guards.tsx';
 import { AppLayout } from './layouts/app-layout.tsx';
 import { AuthLayout } from './layouts/auth-layout.tsx';
+import { NotFound, RouteError } from './route-error.tsx';
 
 // Code-splitting por ruta: cada página es un chunk que se carga al navegar.
 const LoginPage = lazy(() =>
@@ -93,28 +94,34 @@ if (import.meta.env.DEV) {
 
 export const router = createBrowserRouter([
   {
-    element: <RequireGuest />,
+    errorElement: <RouteError />,
     children: [
       {
-        element: <AuthLayout />,
+        element: <RequireGuest />,
         children: [
-          { path: 'login', element: <LoginPage /> },
-          { path: 'register', element: <RegisterPage /> },
+          {
+            element: <AuthLayout />,
+            children: [
+              { path: 'login', element: <LoginPage /> },
+              { path: 'register', element: <RegisterPage /> },
+            ],
+          },
         ],
       },
-    ],
-  },
-  {
-    element: <RequireNoHousehold />,
-    children: [
       {
-        element: <AuthLayout />,
-        children: [{ path: 'onboarding', element: <OnboardingPage /> }],
+        element: <RequireNoHousehold />,
+        children: [
+          {
+            element: <AuthLayout />,
+            children: [{ path: 'onboarding', element: <OnboardingPage /> }],
+          },
+        ],
       },
+      {
+        element: <RequireHousehold />,
+        children: [{ path: '/', element: <AppLayout />, children: appRoutes }],
+      },
+      { path: '*', element: <NotFound /> },
     ],
-  },
-  {
-    element: <RequireHousehold />,
-    children: [{ path: '/', element: <AppLayout />, children: appRoutes }],
   },
 ]);

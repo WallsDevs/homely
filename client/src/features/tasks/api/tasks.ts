@@ -155,7 +155,7 @@ export function useCreateTask() {
   return useMutation({
     mutationFn: (input: CreateTaskInput) =>
       api('/tasks', { method: 'POST', body: input, schema: taskSchema }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: taskKeys.all }),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: taskKeys.all }),
   });
 }
 
@@ -164,7 +164,7 @@ export function useUpdateTask() {
   return useMutation({
     mutationFn: ({ id, input }: { id: string; input: UpdateTaskInput }) =>
       api(`/tasks/${id}`, { method: 'PATCH', body: input, schema: taskSchema }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: taskKeys.all }),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: taskKeys.all }),
   });
 }
 
@@ -172,6 +172,6 @@ export function useDeleteTask() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => api<void>(`/tasks/${id}`, { method: 'DELETE' }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: taskKeys.all }),
+    onSuccess: () => void queryClient.invalidateQueries({ queryKey: taskKeys.all }),
   });
 }

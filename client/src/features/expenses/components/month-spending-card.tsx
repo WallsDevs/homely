@@ -1,4 +1,4 @@
-import { ArrowDownRight, ArrowUpRight, ChevronRight, TriangleAlert, Wallet } from 'lucide-react';
+import { ChevronRight, TriangleAlert, Wallet } from 'lucide-react';
 import { Link } from 'react-router';
 import { cn } from '@/shared/lib/cn.ts';
 import { Card, CategoryIcon, EmptyState, Skeleton } from '@/shared/ui/index.ts';
@@ -45,7 +45,7 @@ export function GoalAlerts() {
   );
 }
 
-/** Dashboard · Gastos del mes: total, vs. mes anterior y categorías principales. */
+/** Dashboard · Gastos del mes: total, mes anterior como referencia y categorías principales. */
 export function MonthSpendingCard() {
   const summary = useExpenseSummary();
   const money = useMoney();
@@ -54,7 +54,6 @@ export function MonthSpendingCard() {
   const data = summary.data;
   const total = Number(data?.total ?? 0);
   const previous = Number(data?.previousTotal ?? 0);
-  const delta = previous === 0 ? null : (total - previous) / previous;
   const top = data?.byCategory.slice(0, TOP_CATEGORIES) ?? [];
 
   return (
@@ -76,19 +75,10 @@ export function MonthSpendingCard() {
         <>
           <div>
             <p className="text-display tabular">{money.format(total)}</p>
-            {delta !== null && (
-              <p
-                className={cn(
-                  'mt-1 inline-flex items-center gap-1 text-small tabular',
-                  delta > 0 ? 'text-danger' : 'text-success',
-                )}
-              >
-                {delta > 0 ? (
-                  <ArrowUpRight className="size-3.5" aria-hidden />
-                ) : (
-                  <ArrowDownRight className="size-3.5" aria-hidden />
-                )}
-                {Math.abs(Math.round(delta * 100))} % vs. mes anterior
+            {/* El mes en curso está a medias: el anterior va como referencia, sin porcentaje. */}
+            {previous > 0 && (
+              <p className="mt-1 text-small text-fg-3 tabular">
+                Mes anterior: {money.format(previous)}
               </p>
             )}
           </div>

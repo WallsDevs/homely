@@ -77,17 +77,26 @@ Fases secuenciales. Cada una termina con criterios de "hecho" verificables y con
 
 **Hecho cuando:** al cerrar la semana se ve quién cumplió qué, qué tareas se quedaron sin hacer y cuánto se gastó frente a las metas; y se pueden borrar los datos de 2025 con un rango y una confirmación ✅ (prueba real: semana 12–18 oct, hogar 86 %, Luis 67 % con "Sacar la basura" sin hacer).
 
-## Fase 6 · Pulido, rendimiento y PWA
+## Fase 6 · Pulido, rendimiento y PWA — ✅ completada 2026-10-20
 
-- [ ] Auditoría visual contra `06-diseno-ui.md` en 360 / 768 / 1280 px, claro y oscuro. Estados vacíos, skeletons y errores en todas las páginas.
-- [ ] Lighthouse móvil ≥ 90 en rendimiento y accesibilidad; JS inicial < 180 kB gzip; análisis de bundle.
-- [ ] PWA: iconos, splash, `display: standalone`, estrategia de caché de assets; probar instalación en Android e iOS.
-- [ ] Playwright: flujos de humo móvil y escritorio (doc 05).
-- [ ] Revisión de seguridad: headers, rate limits, rotación de refresh, aislamiento entre hogares, dependencias (`npm audit`).
-- [ ] Despliegue: client en Vercel/Netlify o servido por el server; server + Postgres en Railway/Render/Fly o VPS con Docker. Variables de producción, `prisma migrate deploy` en el arranque, backups diarios de la BD.
-- [ ] README final con guía de despliegue.
+- [x] **Robustez:** pantalla de error amable con «Recargar» (`RouteError`), página 404, enlace «Saltar al contenido». Las consultas sin datos previos que fallan muestran la pantalla de error en lugar de un esqueleto eterno (`throwOnError`); con datos previos siguen mostrándolos.
+- [x] **Auditoría visual** con capturas reales de Playwright a 360 px y 1280 px, claro y oscuro (`e2e/screenshots/`). Corregido: las pestañas de Tareas se recortaban en móvil (`SegmentedControl scrollable`), `cn()` no resolvía conflictos de clases Tailwind (ahora usa `tailwind-merge` con los tamaños de texto propios), y las comparaciones «vs. semana/mes anterior» a mitad de periodo engañaban (solo se muestran en semanas cerradas; el Inicio muestra el mes anterior como referencia).
+- [x] **Sesión:** margen de gracia de 30 s al rotar el refresh token (recargar a mitad de la rotación ya no cierra la sesión); el reuso fuera del margen sigue revocando toda la familia. Columna `rotatedAt` (migración aditiva).
+- [x] **Rendimiento:** mutaciones no bloquean en la invalidación (el formulario se cierra al confirmar el server). JS inicial 125 kB gzip (presupuesto 180). Lighthouse no se midió (sin herramienta en el entorno); queda como comprobación manual.
+- [x] **PWA:** iconos PNG 64/192/512 + maskable 512 + apple-touch-icon 180 generados con `npm run icons -w @homely/client` (sharp) desde los SVG; metas de iOS; `theme-init.js` externo para cumplir la CSP.
+- [x] **Playwright:** 10 pruebas de humo (login, recorrido por las 14 pantallas, completar y deshacer tarea, registrar gasto desde el «+», modo oscuro) × móvil y escritorio, contra el build de producción y la BD de test. `npm run e2e`.
+- [x] **Seguridad:** CSP estricta sin `unsafe-inline` (`helmet`), HSTS, rate limits configurables por entorno (`RATE_LIMIT_PER_MINUTE`, `AUTH_RATE_LIMIT_PER_MINUTE`) con log al alcanzarlos, Vitest actualizado a 4 (cerraba 2 críticas y 1 moderada de `npm audit`). Quedan 3 avisos «high» en la CLI de Prisma 6 (`deepmerge-ts` vía `@prisma/config`): afectan solo a la herramienta de migraciones, no al server en ejecución; se cierran al migrar a Prisma 7.
+- [x] **Producción en un solo servicio:** el server entrega el client compilado (`CLIENT_DIST_DIR`), mismo origen → sin CORS; assets con hash cacheados 1 año, `index.html` con `no-cache`; la API sigue respondiendo JSON en sus 404. `Dockerfile` multi-etapa (635 MB, usuario `node`, healthcheck, `prisma migrate deploy` al arrancar) probado localmente contra la BD de test. Guía en el README.
+- [x] Hook pre-commit (`simple-git-hooks` + `lint-staged`: oxlint --fix + prettier). `.npmrc` con `legacy-peer-deps` por un fallo de npm 10 en este monorepo.
 
-**Hecho cuando:** la pareja usa Homely desde sus celulares como app instalada, en casa y fuera, sin fricción.
+**Hecho cuando:** la pareja usa Homely desde sus celulares como app instalada, en casa y fuera, sin fricción → listo para desplegar; la instalación real en Android/iOS la valida la dueña tras publicarla.
+
+## Pendientes para después de desplegar
+
+- Medir Lighthouse móvil en la URL pública (objetivo ≥ 90 en rendimiento y accesibilidad).
+- Backups diarios de la BD (los ofrece el proveedor: Neon, Supabase, Railway).
+- Migrar a Prisma 7 cuando se disponga de tiempo (cierra los avisos de `npm audit`).
+- Reducir la imagen Docker (635 MB): la mayor parte es Prisma CLI + motores; con Prisma 7 y driver adapters debería bajar.
 
 ## Después de la v1 (ideas aparcadas)
 

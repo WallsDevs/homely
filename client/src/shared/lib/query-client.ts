@@ -9,6 +9,11 @@ export const queryClient = new QueryClient({
       // Un 4xx no se arregla reintentando.
       retry: (failureCount, error) =>
         !(error instanceof ApiError && error.isClientError) && failureCount < 2,
+      // Si una consulta falla y no hay nada que mostrar, la pantalla de error (con «Recargar»)
+      // es mejor que un esqueleto de carga eterno. Con datos previos, se siguen mostrando.
+      // Un 401 lo gestiona el flujo de sesión, no la pantalla de error.
+      throwOnError: (error, query) =>
+        query.state.data === undefined && !(error instanceof ApiError && error.status === 401),
     },
     mutations: { retry: false },
   },

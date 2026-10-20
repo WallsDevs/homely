@@ -55,6 +55,7 @@ export function TasksPage() {
           label="Ver"
           value={tab}
           onChange={setTab}
+          scrollable
           className="md:w-[30rem]"
           options={[
             { value: 'today', label: withCount('Hoy', counts?.today) },

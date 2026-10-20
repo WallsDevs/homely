@@ -80,11 +80,13 @@ export function useGoals() {
 /** Un gasto cambia listados, resúmenes y el progreso de las metas. */
 function useInvalidateSpending() {
   const queryClient = useQueryClient();
-  return () =>
-    Promise.all([
+  // Sin esperar: el formulario se cierra al confirmar el server y las vistas se refrescan detrás.
+  return () => {
+    void Promise.all([
       queryClient.invalidateQueries({ queryKey: expenseKeys.all }),
       queryClient.invalidateQueries({ queryKey: expenseKeys.goals }),
     ]);
+  };
 }
 
 export function useCreateExpense() {
@@ -117,13 +119,15 @@ export function useDeleteExpense() {
 
 function useInvalidateCategories() {
   const queryClient = useQueryClient();
-  return () =>
-    Promise.all([
+  // Sin esperar: el formulario se cierra al confirmar el server y las vistas se refrescan detrás.
+  return () => {
+    void Promise.all([
       queryClient.invalidateQueries({ queryKey: expenseKeys.categoriesAll }),
       // El nombre, color o icono de una categoría aparece en gastos y metas.
       queryClient.invalidateQueries({ queryKey: expenseKeys.all }),
       queryClient.invalidateQueries({ queryKey: expenseKeys.goals }),
     ]);
+  };
 }
 
 export function useCreateCategory() {
@@ -161,11 +165,13 @@ export function useReorderCategories() {
 
 function useInvalidateGoals() {
   const queryClient = useQueryClient();
-  return () =>
-    Promise.all([
+  // Sin esperar: el formulario se cierra al confirmar el server y las vistas se refrescan detrás.
+  return () => {
+    void Promise.all([
       queryClient.invalidateQueries({ queryKey: expenseKeys.goals }),
       queryClient.invalidateQueries({ queryKey: expenseKeys.all }),
     ]);
+  };
 }
 
 export function useCreateGoal() {

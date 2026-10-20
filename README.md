@@ -51,4 +51,49 @@ Generar un secreto: `node -e "console.log(require('crypto').randomBytes(48).toSt
 | `npm run build` | build de producción |
 | `npm run db:studio` | explorar la BD con Prisma Studio |
 
+| `npm run e2e` | pruebas de punta a punta con Playwright (móvil y escritorio) + capturas en `e2e/screenshots/` |
+
 En desarrollo, `http://localhost:5173/dev/ui` muestra la galería del sistema de diseño.
+
+## Probar desde el celular en casa
+
+Vite solo escucha en `localhost`. Para abrirlo desde el teléfono en la misma red Wi-Fi:
+
+```bash
+npm run dev -w @homely/client -- --host
+```
+
+y entra desde el celular a `http://<IP-de-tu-PC>:5173` (la IP aparece en la terminal como «Network»).
+
+## Despliegue
+
+Homely se publica como **un solo servicio**: el server entrega la API y la web compilada desde el mismo dominio. Necesitas un PostgreSQL (Neon, Supabase o Railway tienen planes gratuitos con backups) y un sitio donde correr un contenedor Docker (Railway, Render, Fly.io o un VPS).
+
+### Variables de entorno de producción
+
+```
+NODE_ENV=production
+PORT=4000
+CLIENT_ORIGIN=https://tu-dominio.com
+TRUST_PROXY=true                 # detrás de Railway/Render/Fly/nginx
+DATABASE_URL=postgresql://...    # la de tu proveedor
+JWT_ACCESS_SECRET=...            # node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
+LOG_LEVEL=info
+```
+
+`CLIENT_DIST_DIR` ya viene fijado en la imagen. Las migraciones se aplican solas al arrancar (`prisma migrate deploy`).
+
+### Con Docker
+
+```bash
+docker build -t homely .
+docker run -d -p 4000:4000 --env-file .env.production homely
+```
+
+La imagen corre como usuario sin privilegios, expone un healthcheck en `/api/v1/health` y pesa ~635 MB.
+
+### Después de publicar
+
+1. Abre la URL en el celular y usa «Añadir a la pantalla de inicio»: Homely se instala como app, con su icono, sin barra del navegador.
+2. Regístrate, crea tu hogar e invita a tu pareja con un código de **administrador** desde *Miembros → Invitar*.
+3. Activa los backups diarios de la base de datos en tu proveedor.

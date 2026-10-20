@@ -5,8 +5,9 @@ import cors from 'cors';
 import express, { Router } from 'express';
 import helmet from 'helmet';
 import { pinoHttp } from 'pino-http';
-import { env } from './config/env.ts';
+import { env, isProduction } from './config/env.ts';
 import { logger } from './lib/logger.ts';
+import { serveClient } from './lib/static-client.ts';
 import { errorHandler, notFoundHandler } from './middlewares/error-handler.ts';
 import { globalRateLimit } from './middlewares/rate-limit.ts';
 import { requireAuth, requireHousehold } from './middlewares/auth.ts';
@@ -24,7 +25,9 @@ import { reportsRouter } from './modules/reports/reports.routes.ts';
 import { tasksRouter } from './modules/tasks/tasks.routes.ts';
 
 /** Crea la app sin escuchar en un puerto, para poder testearla con Supertest. */
-export function createApp() {
+export function createApp({
+  clientDistDir = env.CLIENT_DIST_DIR,
+}: { clientDistDir?: string | undefined } = {}) {
   const app = express();
 
   app.set('trust proxy', env.TRUST_PROXY);
@@ -42,7 +45,29 @@ export function createApp() {
       autoLogging: { ignore: (req) => req.url === '/api/v1/health' },
     }),
   );
-  app.use(helmet());
+  app.use(
+    helmet({
+      // CSP estricta: solo recursos propios, sin scripts en línea ni iframes de terceros.
+      contentSecurityPolicy: {
+        useDefaults: false,
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          styleSrc: ["'self'"],
+          fontSrc: ["'self'"],
+          imgSrc: ["'self'", 'data:'],
+          connectSrc: ["'self'"],
+          workerSrc: ["'self'"],
+          manifestSrc: ["'self'"],
+          objectSrc: ["'none'"],
+          baseUri: ["'self'"],
+          formAction: ["'self'"],
+          frameAncestors: ["'none'"],
+          ...(isProduction ? { upgradeInsecureRequests: [] } : {}),
+        },
+      },
+    }),
+  );
   app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }));
   app.use(compression());
   app.use(express.json({ limit: '100kb' }));
@@ -64,6 +89,7 @@ export function createApp() {
   api.use('/maintenance', requireAuth, requireHousehold, maintenanceRouter);
 
   app.use('/api/v1', api);
+  if (clientDistDir) serveClient(app, clientDistDir);
   app.use(notFoundHandler);
   app.use(errorHandler);
 

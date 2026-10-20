@@ -164,7 +164,8 @@ function ExpensesCard({ report }: { report: WeeklyReport }) {
   const { expenses } = report;
   const total = Number(expenses.total);
   const previous = Number(expenses.previousTotal);
-  const delta = previous === 0 ? null : (total - previous) / previous;
+  // Solo se compara una semana cerrada: a mitad de semana la comparación engaña.
+  const delta = !report.isClosed || previous === 0 ? null : (total - previous) / previous;
 
   return (
     <Card>

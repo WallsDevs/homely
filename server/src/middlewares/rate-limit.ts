@@ -1,20 +1,23 @@
 import { rateLimit } from 'express-rate-limit';
-import { isTest } from '../config/env.ts';
+import { env, isTest } from '../config/env.ts';
 import { AppError } from '../lib/errors.ts';
 
-function perMinute(limit: number) {
+function perMinute(limit: number, scope: string) {
   return rateLimit({
     windowMs: 60_000,
     limit,
     standardHeaders: 'draft-8',
     legacyHeaders: false,
     skip: () => isTest,
-    handler: (_req, _res, next) => next(AppError.rateLimited()),
+    handler: (req, _res, next) => {
+      req.log.warn({ scope, limit }, 'Límite de peticiones alcanzado');
+      next(AppError.rateLimited());
+    },
   });
 }
 
-/** 100 peticiones por minuto e IP para toda la API. */
-export const globalRateLimit = perMinute(100);
+/** Toda la API. Generoso: varios miembros del hogar suelen compartir la misma IP. */
+export const globalRateLimit = perMinute(env.RATE_LIMIT_PER_MINUTE, 'api');
 
-/** 10 peticiones por minuto e IP en login, registro y unirse a un hogar. */
-export const strictRateLimit = perMinute(10);
+/** Login, registro y unirse a un hogar. */
+export const strictRateLimit = perMinute(env.AUTH_RATE_LIMIT_PER_MINUTE, 'auth');

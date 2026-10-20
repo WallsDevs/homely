@@ -24,3 +24,8 @@ Thumbs.db
 # logs
 *.log
 npm-debug.log*
+
+# e2e
+e2e/.results/
+e2e/screenshots/
+playwright-report/

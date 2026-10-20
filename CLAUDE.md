@@ -62,11 +62,14 @@ npm test                 # tests de los tres workspaces (server usa homely_test)
 npm run typecheck        # tsc en los tres workspaces
 npm run lint             # oxlint + prettier --check   (lint:fix para corregir)
 npm run build            # shared → server → client
+npm run e2e              # Playwright: build + seed de BD de test + 10 pruebas móvil/escritorio
 ```
 
 Usuarios del seed: `iveth@homely.dev` y `luis@homely.dev`, contraseña `homely1234` (ambos ADMIN).
 
-Estado actual: **Fases 0 a 5 completadas.** Siguiente: Fase 6 (pulido, rendimiento, PWA y despliegue) en `docs/09-roadmap.md`.
+Estado actual: **v1 completa (Fases 0 a 6).** Pendientes post-despliegue y sugerencias no confirmadas en `docs/09-roadmap.md`.
+
+Verificación completa antes de un commit grande: `npm run lint && npm run typecheck && npm test && npm run build`. Para ver las pantallas de verdad: `npm run e2e` (Playwright, build de producción, BD de test) deja capturas en `e2e/screenshots/`. Producción: `docker build -t homely .` (ver README).
 
 Reportes: los cálculos (cumplimiento, delta, racha) son funciones puras en `server/src/modules/reports/report-stats.ts`; el cumplimiento siempre excluye las omitidas. La purga (`maintenance`) nunca toca la semana actual ni el futuro.
 

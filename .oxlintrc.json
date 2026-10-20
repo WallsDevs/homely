@@ -56,6 +56,12 @@
       "rules": {
         "react/only-export-components": "off"
       }
+    },
+    {
+      "files": ["**/scripts/**"],
+      "rules": {
+        "no-console": "off"
+      }
     }
   ]
 }
