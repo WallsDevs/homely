@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 type PageHeaderProps = {
   title: string;
-  subtitle?: string;
+  subtitle?: string | undefined;
   /** Acción primaria. En móvil se oculta: allí la acción vive en el FAB. */
   action?: ReactNode;
 };

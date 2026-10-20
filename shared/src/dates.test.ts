@@ -1,5 +1,20 @@
 import { describe, expect, it } from 'vitest';
-import { addDays, dateInWeek, endOfWeek, startOfWeek, todayIn, weekdayOf } from './dates.ts';
+import {
+  addDays,
+  dateInWeek,
+  daysBetween,
+  endOfWeek,
+  startOfWeek,
+  todayIn,
+  weekdayOf,
+} from './dates.ts';
+
+describe('daysBetween', () => {
+  it('cuenta días en ambos sentidos', () => {
+    expect(daysBetween('2026-10-19', '2026-10-25')).toBe(6);
+    expect(daysBetween('2026-10-19', '2026-10-18')).toBe(-1);
+  });
+});
 
 describe('weekdayOf', () => {
   it('identifica el día de la semana', () => {

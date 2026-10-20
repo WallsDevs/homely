@@ -1,13 +1,6 @@
 import { z } from 'zod';
+import { isValidTimeZone } from '../dates.ts';
 import { WEEKDAYS } from '../enums.ts';
-
-function isValidTimeZone(timeZone: string): boolean {
-  try {
-    return new Intl.DateTimeFormat('en-US', { timeZone }).resolvedOptions().timeZone !== '';
-  } catch {
-    return false;
-  }
-}
 
 export const timezoneSchema = z
   .string()

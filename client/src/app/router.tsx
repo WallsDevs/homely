@@ -21,6 +21,12 @@ const DashboardPage = lazy(() =>
     default: m.DashboardPage,
   })),
 );
+const TasksPage = lazy(() =>
+  import('@/features/tasks/pages/tasks-page.tsx').then((m) => ({ default: m.TasksPage })),
+);
+const BoardPage = lazy(() =>
+  import('@/features/tasks/pages/board-page.tsx').then((m) => ({ default: m.BoardPage })),
+);
 const MembersPage = lazy(() =>
   import('@/features/members/pages/members-page.tsx').then((m) => ({ default: m.MembersPage })),
 );
@@ -40,16 +46,8 @@ const MorePage = lazy(() =>
 
 const appRoutes: RouteObject[] = [
   { index: true, element: <DashboardPage /> },
-  {
-    path: 'tasks',
-    element: (
-      <ComingSoonPage
-        title="Tareas"
-        phase={2}
-        description="Tus tareas de hoy y de la semana, y el tablero del hogar por miembro."
-      />
-    ),
-  },
+  { path: 'tasks', element: <TasksPage /> },
+  { path: 'tasks/board', element: <BoardPage /> },
   {
     path: 'plans',
     element: (

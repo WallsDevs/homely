@@ -34,16 +34,16 @@ Fases secuenciales. Cada una termina con criterios de "hecho" verificables y con
 
 **Hecho cuando:** dos personas pueden registrarse, una crea el hogar y la otra entra como ADMIN con un código, y ambas ven lo mismo ✅ (cubierto por tests y prueba manual por API). Revisión visual en celular pendiente de la dueña.
 
-## Fase 2 · Tareas
+## Fase 2 · Tareas — ✅ completada 2026-10-19
 
 **Requisitos:** TK-01 … TK-10.
 
-- [ ] `shared`: schemas de task y filtros.
-- [ ] Server: módulo `tasks` (list con filtros y cursor, mine, board, CRUD, complete/uncomplete/skip con reglas de permiso). `lib/dates` con semanas por tz e inicio de semana, probado a fondo.
-- [ ] Client: Mis tareas (Hoy · Semana · Vencidas), Tablero semanal (carrusel en móvil, columnas en escritorio), Detalle (BottomSheet/panel), Formulario Nueva tarea en el FAB/header, completar optimista con "Deshacer", WeekPicker.
-- [ ] Tests: permisos (asignado vs admin vs otro), estado vencida derivado, filtros, optimistic update con rollback (client).
+- [x] `shared`: schemas de task, filtros (CSV de estados), mis tareas y tablero. Las utilidades de calendario (`startOfWeek`, `todayIn`, …) pasaron a `shared/src/dates.ts` para usarlas también en el client.
+- [x] Server: módulo `tasks` (list con filtros, búsqueda y cursor; mine; board con columna por miembro activo y "sin asignar"; CRUD; complete/uncomplete/skip). Estado "vencida" calculado con la zona del hogar. 15 tests de integración.
+- [x] Client: Tareas (Hoy · Semana · Vencidas · Todas con búsqueda y filtros), Tablero semanal (carrusel en móvil, rejilla en escritorio, "+" por miembro), ficha de detalle, formulario de tarea (asignar con avatares, Hoy/Mañana, prioridad, notas, "Guardar y crear otra"), completar optimista con "Deshacer", WeekPicker, tareas de hoy en el Inicio y aviso de vencidas. El botón "+" ya crea tareas (admins).
+- [x] Tests del client: permisos del check, optimistic update y reversión con error, formato de fechas.
 
-**Hecho cuando:** un admin crea y asigna tareas desde el celular y el asignado las completa en un toque; el tablero muestra la semana por miembro.
+**Hecho cuando:** un admin crea y asigna tareas desde el celular y el asignado las completa en un toque; el tablero muestra la semana por miembro ✅ (tests + prueba real contra la BD con el seed). Revisión visual pendiente de la dueña.
 
 ## Fase 3 · Planes y generación semanal
 

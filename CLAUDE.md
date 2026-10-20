@@ -35,7 +35,8 @@ Web para gestionar un hogar: tareas con planes semanales recurrentes, miembros, 
 
 - TypeScript `strict`. Prohibido `any`; usa `unknown` y estrecha.
 - Validar en los bordes con Zod: en el server cada ruta usa `endpoint({ body, query, params }, handler)` (`server/src/lib/endpoint.ts`); en el client, `api(path, { schema })` y formularios. Los schemas compartidos viven en `shared/`.
-- Fechas de día con `server/src/lib/dates.ts` (ISO `YYYY-MM-DD`, `startOfWeek`, `todayIn(tz)`); nunca `new Date()` para decidir "hoy".
+- Fechas de día con las utilidades de `@homely/shared` (`shared/src/dates.ts`: ISO `YYYY-MM-DD`, `startOfWeek`, `todayIn(tz)`); en el server, `toDbDate`/`fromDbDate` de `server/src/lib/dates.ts`. Nunca `new Date()` para decidir "hoy". En la UI, `client/src/shared/lib/format-date.ts` (`dueLabel`, `dayHeading`, `weekRangeLabel`).
+- `npm run db:seed` **borra** la BD de desarrollo: pedir confirmación antes de ejecutarlo.
 - Imports relativos con extensión `.ts`/`.tsx`. Alias `@/` en el client.
 - Capas en el server: `routes (handler de endpoint() = controller) → services → repositories`. La lógica de negocio solo en `services`. Las consultas reutilizables van en `repositories`; una transacción propia de un caso de uso puede escribirse en el service con `prisma.$transaction`.
 - Contexto de petición: `authOf(req)` / `householdOf(req)` (`server/src/lib/context.ts`). Los services reciben el contexto, nunca `req`.
@@ -65,6 +66,8 @@ npm run build            # shared → server → client
 
 Usuarios del seed: `iveth@homely.dev` y `luis@homely.dev`, contraseña `homely1234` (ambos ADMIN).
 
-Estado actual: **Fases 0 y 1 completadas.** Siguiente: Fase 2 (tareas) en `docs/09-roadmap.md`.
+Estado actual: **Fases 0, 1 y 2 completadas.** Siguiente: Fase 3 (planes y generación semanal) en `docs/09-roadmap.md`.
+
+Tareas en el client: `TaskUIProvider` (montado en `AppLayout`) expone `useTaskUI()` con `today`, `canResolve`, `toggle` (optimista con "Deshacer"), `openDetail`, `openCreate`, `openEdit`. Toda vista de tareas usa `TaskItem`; las cachés de tareas cuelgan de `taskKeys.all`.
 
 En el client, la sesión vive en TanStack Query (`features/auth/api/session.ts`): `useSession()` en guards, `useHouseholdSession()` dentro de la app (garantiza hogar y expone `isAdmin`).

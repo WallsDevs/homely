@@ -15,6 +15,7 @@ import { healthRouter } from './modules/health/health.routes.ts';
 import { householdsRouter } from './modules/households/households.routes.ts';
 import { invitationsRouter } from './modules/invitations/invitations.routes.ts';
 import { membersRouter } from './modules/members/members.routes.ts';
+import { tasksRouter } from './modules/tasks/tasks.routes.ts';
 
 /** Crea la app sin escuchar en un puerto, para poder testearla con Supertest. */
 export function createApp() {
@@ -48,6 +49,7 @@ export function createApp() {
   api.use('/households', requireAuth, householdsRouter);
   api.use('/invitations', requireAuth, requireHousehold, invitationsRouter);
   api.use('/members', requireAuth, requireHousehold, membersRouter);
+  api.use('/tasks', requireAuth, requireHousehold, tasksRouter);
 
   app.use('/api/v1', api);
   app.use(notFoundHandler);
