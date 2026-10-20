@@ -9,7 +9,10 @@ const envSchema = z.object({
   TRUST_PROXY: booleanString.default(false),
   DATABASE_URL: z.url(),
   JWT_ACCESS_SECRET: z.string().min(32, 'debe tener al menos 32 caracteres'),
-  JWT_ACCESS_TTL: z.string().default('15m'),
+  JWT_ACCESS_TTL: z
+    .string()
+    .regex(/^\d+[smhd]$/, 'usa un formato como 15m, 1h o 7d')
+    .default('15m'),
   REFRESH_TTL_DAYS: z.coerce.number().int().positive().default(30),
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
   APP_VERSION: z.string().default(process.env['npm_package_version'] ?? '0.0.0'),

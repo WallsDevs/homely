@@ -1,5 +1,6 @@
 import { CircleCheckBig, Wallet } from 'lucide-react';
 import { Badge, Card, CardHeader, EmptyState, PageHeader, Skeleton } from '@/shared/ui/index.ts';
+import { useHouseholdSession } from '@/features/auth/api/session.ts';
 import { useHealth } from '../api/health.ts';
 
 const todayLabel = new Intl.DateTimeFormat('es', {
@@ -9,9 +10,11 @@ const todayLabel = new Intl.DateTimeFormat('es', {
 }).format(new Date());
 
 export function DashboardPage() {
+  const { membership } = useHouseholdSession();
+
   return (
     <>
-      <PageHeader title="Inicio" subtitle={capitalize(todayLabel)} />
+      <PageHeader title={`Hola, ${membership.displayName}`} subtitle={capitalize(todayLabel)} />
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">

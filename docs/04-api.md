@@ -49,8 +49,8 @@ REST + JSON bajo `/api/v1`. Toda ruta salvo `auth/*` y `health` requiere access 
 ### Auth
 | Método | Ruta | Rol | Descripción |
 |---|---|---|---|
-| POST | `/auth/register` | — | `{ email, name, password }` → `{ user, accessToken }` + cookie refresh |
-| POST | `/auth/login` | — | `{ email, password }` → `{ user, accessToken }` + cookie |
+| POST | `/auth/register` | — | `{ email, name, password }` → `{ accessToken, session }` + cookie refresh |
+| POST | `/auth/login` | — | `{ email, password }` → `{ accessToken, session }` + cookie |
 | POST | `/auth/refresh` | cookie | rota refresh → `{ accessToken }` |
 | POST | `/auth/logout` | cookie | revoca el refresh actual |
 | POST | `/auth/logout-all` | auth | revoca todos los refresh del usuario |
@@ -59,7 +59,7 @@ REST + JSON bajo `/api/v1`. Toda ruta salvo `auth/*` y `health` requiere access 
 ### Households
 | Método | Ruta | Rol | Descripción |
 |---|---|---|---|
-| POST | `/households` | auth, sin hogar | `{ name, currency, timezone, weekStartsOn }` → crea y deja como ADMIN |
+| POST | `/households` | auth, sin hogar | `{ name, currency, timezone, weekStartsOn }` → crea, deja como ADMIN y devuelve la `session` actualizada (igual que `/join`) |
 | GET | `/households/current` | miembro | datos del hogar + contadores básicos |
 | PATCH | `/households/current` | ADMIN | editar nombre, moneda, zona horaria, inicio de semana |
 | POST | `/households/join` | auth, sin hogar | `{ code }` → crea membresía con el rol del código |
@@ -78,7 +78,7 @@ REST + JSON bajo `/api/v1`. Toda ruta salvo `auth/*` y `health` requiere access 
 | PATCH | `/members/me` | miembro | `{ displayName?, color?, avatarUrl? }` |
 | PATCH | `/members/:id/role` | ADMIN | `{ role }` — valida `LAST_ADMIN` |
 | PATCH | `/members/:id/status` | ADMIN | `{ isActive }` — valida `LAST_ADMIN` |
-| POST | `/members/me/leave` | miembro | salir del hogar — valida `LAST_ADMIN` |
+| POST | `/members/me/leave` | miembro | salir del hogar (desactiva la propia membresía; al volver con un código se reactiva la misma) — valida `LAST_ADMIN` |
 
 ### Tasks
 | Método | Ruta | Rol | Descripción |

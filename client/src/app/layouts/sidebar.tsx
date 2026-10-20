@@ -1,14 +1,17 @@
 import { Plus } from 'lucide-react';
-import { NavLink } from 'react-router';
+import { Link, NavLink } from 'react-router';
+import { useHouseholdSession } from '@/features/auth/api/session.ts';
 import { cn } from '@/shared/lib/cn.ts';
-import { Button } from '@/shared/ui/index.ts';
+import { Avatar, Button } from '@/shared/ui/index.ts';
 import { primaryNav, secondaryNav, type NavItem } from './nav-items.ts';
-import { ThemeSwitcher } from './theme-switcher.tsx';
+import { ThemeCycleButton, ThemeSwitcher } from './theme-switcher.tsx';
 
 type SidebarProps = { onQuickAction: () => void };
 
 /** Tablet (md): columna de iconos de 64 px. Escritorio (lg): 240 px con texto y acciones rápidas. */
 export function Sidebar({ onQuickAction }: SidebarProps) {
+  const { membership, household } = useHouseholdSession();
+
   return (
     <aside className="sticky top-0 hidden h-dvh w-16 shrink-0 flex-col border-r border-line bg-surface md:flex lg:w-60">
       <div className="flex h-16 items-center gap-2.5 px-4 lg:px-5">
@@ -27,8 +30,26 @@ export function Sidebar({ onQuickAction }: SidebarProps) {
         <NavGroup items={secondaryNav} />
       </nav>
 
-      <div className="border-t border-line p-3">
-        <ThemeSwitcher compact />
+      <div className="flex flex-col gap-3 border-t border-line p-3">
+        <div className="hidden lg:block">
+          <ThemeSwitcher iconsOnly />
+        </div>
+        <div className="flex justify-center lg:hidden">
+          <ThemeCycleButton />
+        </div>
+        <Link
+          to="/settings"
+          title="Tu perfil y ajustes"
+          className="flex items-center justify-center gap-3 rounded-md p-1.5 transition-colors lg:justify-start hover-pointer:bg-surface-2"
+        >
+          <Avatar name={membership.displayName} color={membership.color} size={32} />
+          <span className="hidden min-w-0 lg:block">
+            <span className="block truncate text-small font-medium">{membership.displayName}</span>
+            <span className="block truncate text-caption font-normal tracking-normal text-fg-3">
+              {household.name}
+            </span>
+          </span>
+        </Link>
       </div>
     </aside>
   );

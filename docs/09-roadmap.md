@@ -21,16 +21,18 @@ Fases secuenciales. Cada una termina con criterios de "hecho" verificables y con
 
 **Métricas al cierre:** JS inicial 114 kB gzip (presupuesto 180 kB) · CSS 6,6 kB gzip · build 0,7 s.
 
-## Fase 1 · Auth, hogar y miembros
+## Fase 1 · Auth, hogar y miembros — ✅ completada 2026-10-19
 
 **Requisitos:** HM-01 … HM-08, doc 01 completo.
 
-- [ ] `shared`: schemas de auth, household, invitation, member.
-- [ ] Server: módulos `auth` (register, login, refresh con rotación, logout, logout-all, me), `households` (create, current, patch, join), `invitations`, `members` (incluida regla `LAST_ADMIN`). Middlewares `requireAuth`, `requireHousehold`, `requireRole`. Audit log de cambios de rol/estado. Categorías semilla al crear hogar.
-- [ ] Tests de integración: registro/login, refresh y reuso de token, crear hogar, unirse con código (rol ADMIN y MEMBER), expiración/agotamiento de código, último admin, aislamiento entre hogares.
-- [ ] Client: Login, Registro, Onboarding (crear / unirse), Miembros (lista, invitaciones, cambio de rol y estado), Perfil (nombre, color, avatar), Ajustes del hogar. Sesión en memoria con refresh automático.
+- [x] `shared`: schemas de auth, household, invitation, member (+ tests de normalización de código, correo y zona horaria).
+- [x] Server: módulos `auth` (register, login, refresh con rotación y detección de reuso por familia, logout, logout-all, me), `households` (create, current, patch, join), `invitations`, `members` (regla `LAST_ADMIN` en transacciones `Serializable`). Middlewares `requireAuth`, `requireHousehold` (consulta la membresía en cada petición: desactivar surte efecto inmediato), `requireRole`. Auditoría de roles, estados, invitaciones y cambios del hogar. Categorías semilla al crear hogar.
+- [x] 44 tests de integración del server: registro/login (incl. respuesta idéntica para correo inexistente), refresh y reuso de token, logout-all, crear hogar, unirse con código ADMIN y MEMBER, código usado/revocado/expirado, último admin, aislamiento entre hogares (404), permisos de MEMBER, desactivación y reingreso.
+- [x] Client: Login, Registro, Onboarding (crear / unirse), Miembros (lista, invitaciones con copiar/compartir, cambio de rol y estado), Ajustes (perfil con color, hogar, apariencia, sesión, salir del hogar). Guards de rutas. Sesión en memoria con refresh automático y single-flight. Saludo con nombre en el inicio.
+- [x] Corregido: el selector de tema del sidebar se desbordaba (ahora iconos en escritorio, botón cíclico en tablet).
+- ⏳ Avatar con foto (`avatarUrl`): fuera de v1; se usan iniciales sobre el color del miembro.
 
-**Hecho cuando:** dos personas pueden registrarse, una crea el hogar y la otra entra como ADMIN con un código, y ambas ven lo mismo. Todo usable desde el celular.
+**Hecho cuando:** dos personas pueden registrarse, una crea el hogar y la otra entra como ADMIN con un código, y ambas ven lo mismo ✅ (cubierto por tests y prueba manual por API). Revisión visual en celular pendiente de la dueña.
 
 ## Fase 2 · Tareas
 

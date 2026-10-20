@@ -9,7 +9,12 @@ import { env } from './config/env.ts';
 import { logger } from './lib/logger.ts';
 import { errorHandler, notFoundHandler } from './middlewares/error-handler.ts';
 import { globalRateLimit } from './middlewares/rate-limit.ts';
+import { requireAuth, requireHousehold } from './middlewares/auth.ts';
+import { authRouter } from './modules/auth/auth.routes.ts';
 import { healthRouter } from './modules/health/health.routes.ts';
+import { householdsRouter } from './modules/households/households.routes.ts';
+import { invitationsRouter } from './modules/invitations/invitations.routes.ts';
+import { membersRouter } from './modules/members/members.routes.ts';
 
 /** Crea la app sin escuchar en un puerto, para poder testearla con Supertest. */
 export function createApp() {
@@ -39,6 +44,10 @@ export function createApp() {
   const api = Router();
   api.use(globalRateLimit);
   api.use('/health', healthRouter);
+  api.use('/auth', authRouter);
+  api.use('/households', requireAuth, householdsRouter);
+  api.use('/invitations', requireAuth, requireHousehold, invitationsRouter);
+  api.use('/members', requireAuth, requireHousehold, membersRouter);
 
   app.use('/api/v1', api);
   app.use(notFoundHandler);

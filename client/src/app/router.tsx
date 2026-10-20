@@ -1,11 +1,32 @@
 import { lazy } from 'react';
 import { createBrowserRouter, type RouteObject } from 'react-router';
+import { RequireGuest, RequireHousehold, RequireNoHousehold } from './guards.tsx';
 import { AppLayout } from './layouts/app-layout.tsx';
+import { AuthLayout } from './layouts/auth-layout.tsx';
 
 // Code-splitting por ruta: cada página es un chunk que se carga al navegar.
+const LoginPage = lazy(() =>
+  import('@/features/auth/pages/login-page.tsx').then((m) => ({ default: m.LoginPage })),
+);
+const RegisterPage = lazy(() =>
+  import('@/features/auth/pages/register-page.tsx').then((m) => ({ default: m.RegisterPage })),
+);
+const OnboardingPage = lazy(() =>
+  import('@/features/auth/pages/onboarding-page.tsx').then((m) => ({
+    default: m.OnboardingPage,
+  })),
+);
 const DashboardPage = lazy(() =>
   import('@/features/dashboard/pages/dashboard-page.tsx').then((m) => ({
     default: m.DashboardPage,
+  })),
+);
+const MembersPage = lazy(() =>
+  import('@/features/members/pages/members-page.tsx').then((m) => ({ default: m.MembersPage })),
+);
+const SettingsPage = lazy(() =>
+  import('@/features/settings/pages/settings-page.tsx').then((m) => ({
+    default: m.SettingsPage,
   })),
 );
 const ComingSoonPage = lazy(() =>
@@ -16,6 +37,7 @@ const ComingSoonPage = lazy(() =>
 const MorePage = lazy(() =>
   import('@/features/placeholder/pages/more-page.tsx').then((m) => ({ default: m.MorePage })),
 );
+
 const appRoutes: RouteObject[] = [
   { index: true, element: <DashboardPage /> },
   {
@@ -58,26 +80,8 @@ const appRoutes: RouteObject[] = [
       />
     ),
   },
-  {
-    path: 'members',
-    element: (
-      <ComingSoonPage
-        title="Miembros"
-        phase={1}
-        description="Invita a tu hogar con un código y gestiona roles."
-      />
-    ),
-  },
-  {
-    path: 'settings',
-    element: (
-      <ComingSoonPage
-        title="Ajustes"
-        phase={1}
-        description="Datos del hogar, perfil y limpieza de datos."
-      />
-    ),
-  },
+  { path: 'members', element: <MembersPage /> },
+  { path: 'settings', element: <SettingsPage /> },
   { path: 'more', element: <MorePage /> },
 ];
 
@@ -90,5 +94,29 @@ if (import.meta.env.DEV) {
 }
 
 export const router = createBrowserRouter([
-  { path: '/', element: <AppLayout />, children: appRoutes },
+  {
+    element: <RequireGuest />,
+    children: [
+      {
+        element: <AuthLayout />,
+        children: [
+          { path: 'login', element: <LoginPage /> },
+          { path: 'register', element: <RegisterPage /> },
+        ],
+      },
+    ],
+  },
+  {
+    element: <RequireNoHousehold />,
+    children: [
+      {
+        element: <AuthLayout />,
+        children: [{ path: 'onboarding', element: <OnboardingPage /> }],
+      },
+    ],
+  },
+  {
+    element: <RequireHousehold />,
+    children: [{ path: '/', element: <AppLayout />, children: appRoutes }],
+  },
 ]);

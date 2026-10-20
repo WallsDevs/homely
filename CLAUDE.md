@@ -37,7 +37,8 @@ Web para gestionar un hogar: tareas con planes semanales recurrentes, miembros, 
 - Validar en los bordes con Zod: en el server cada ruta usa `endpoint({ body, query, params }, handler)` (`server/src/lib/endpoint.ts`); en el client, `api(path, { schema })` y formularios. Los schemas compartidos viven en `shared/`.
 - Fechas de día con `server/src/lib/dates.ts` (ISO `YYYY-MM-DD`, `startOfWeek`, `todayIn(tz)`); nunca `new Date()` para decidir "hoy".
 - Imports relativos con extensión `.ts`/`.tsx`. Alias `@/` en el client.
-- Capas en el server: `routes → controllers → services → repositories`. La lógica de negocio solo en `services`. Prisma solo en `repositories`.
+- Capas en el server: `routes (handler de endpoint() = controller) → services → repositories`. La lógica de negocio solo en `services`. Las consultas reutilizables van en `repositories`; una transacción propia de un caso de uso puede escribirse en el service con `prisma.$transaction`.
+- Contexto de petición: `authOf(req)` / `householdOf(req)` (`server/src/lib/context.ts`). Los services reciben el contexto, nunca `req`.
 - Errores tipados (`AppError` con `code` y `status`); un único manejador global. Nunca `res.status(500)` a mano en un controller.
 - Todo dato se filtra por `householdId` obtenido de la membresía autenticada, **nunca** del body ni de la query.
 - Varios `ADMIN` por hogar con permisos idénticos. Un hogar nunca puede quedar sin admin.
@@ -64,4 +65,6 @@ npm run build            # shared → server → client
 
 Usuarios del seed: `iveth@homely.dev` y `luis@homely.dev`, contraseña `homely1234` (ambos ADMIN).
 
-Estado actual: **Fase 0 completada.** Siguiente: Fase 1 (auth, hogar y miembros) en `docs/09-roadmap.md`.
+Estado actual: **Fases 0 y 1 completadas.** Siguiente: Fase 2 (tareas) en `docs/09-roadmap.md`.
+
+En el client, la sesión vive en TanStack Query (`features/auth/api/session.ts`): `useSession()` en guards, `useHouseholdSession()` dentro de la app (garantiza hogar y expone `isAdmin`).

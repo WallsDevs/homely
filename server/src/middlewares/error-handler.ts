@@ -34,6 +34,13 @@ function toAppError(error: unknown): AppError {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === 'P2002') return AppError.conflict('CONFLICT', 'El recurso ya existe');
     if (error.code === 'P2025') return AppError.notFound('Recurso');
+    // Conflicto de serialización entre transacciones concurrentes: el cliente puede reintentar.
+    if (error.code === 'P2034') {
+      return AppError.conflict(
+        'CONFLICT',
+        'Otra persona hizo un cambio a la vez. Inténtalo de nuevo.',
+      );
+    }
   }
 
   if (isBodyParserError(error)) {

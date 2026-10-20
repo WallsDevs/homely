@@ -3,3 +3,7 @@ export * from './constants.ts';
 export * from './errors.ts';
 export * from './schemas/common.ts';
 export * from './schemas/health.ts';
+export * from './schemas/household.ts';
+export * from './schemas/member.ts';
+export * from './schemas/invitation.ts';
+export * from './schemas/auth.ts';
