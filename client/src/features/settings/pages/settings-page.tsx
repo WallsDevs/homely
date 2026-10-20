@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { MEMBER_COLORS, updateHouseholdSchema, updateMeSchema } from '@homely/shared';
-import { Check, LogOut } from 'lucide-react';
+import { Check, ChevronRight, Database, LogOut } from 'lucide-react';
+import { Link } from 'react-router';
 import { useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { ThemeSwitcher } from '@/app/layouts/theme-switcher.tsx';
@@ -38,6 +39,7 @@ export function SettingsPage() {
           <ProfileCard />
           <AppearanceCard />
           <SessionCard />
+          <DataLinkCard />
         </div>
         <HouseholdCard />
       </div>
@@ -221,6 +223,25 @@ function AppearanceCard() {
       <CardHeader title="Apariencia" />
       <ThemeSwitcher />
     </Card>
+  );
+}
+
+/** RP-12: acceso a la limpieza de datos y la actividad del hogar (solo admins). */
+function DataLinkCard() {
+  const { isAdmin } = useHouseholdSession();
+  if (!isAdmin) return null;
+  return (
+    <Link
+      to="/settings/data"
+      className="flex items-center gap-3 rounded-md border border-line bg-surface p-4 transition-colors md:p-5 hover-pointer:bg-surface-2"
+    >
+      <Database className="size-5 text-fg-2" aria-hidden />
+      <span className="flex-1">
+        <span className="block font-medium">Datos del hogar</span>
+        <span className="block text-small text-fg-3">Vaciar datos antiguos y ver la actividad</span>
+      </span>
+      <ChevronRight className="size-4 text-fg-3" aria-hidden />
+    </Link>
   );
 }
 

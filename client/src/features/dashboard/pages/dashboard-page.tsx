@@ -6,6 +6,7 @@ import {
   MonthSpendingCard,
 } from '@/features/expenses/components/month-spending-card.tsx';
 import { usePlans } from '@/features/plans/api/plans.ts';
+import { WeekProgressCard } from '@/features/reports/components/week-progress-card.tsx';
 import { useMyTasks } from '@/features/tasks/api/tasks.ts';
 import { TaskItem } from '@/features/tasks/components/task-item.tsx';
 import { TaskListSkeleton } from '@/features/tasks/components/task-list.tsx';
@@ -33,6 +34,7 @@ export function DashboardPage() {
         </div>
 
         <div className="flex flex-col gap-4">
+          <WeekProgressCard />
           <MonthSpendingCard />
           <SystemStatus />
         </div>

@@ -11,3 +11,4 @@ export * from './schemas/auth.ts';
 export * from './schemas/task.ts';
 export * from './schemas/plan.ts';
 export * from './schemas/expense.ts';
+export * from './schemas/report.ts';

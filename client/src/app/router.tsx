@@ -41,17 +41,21 @@ const CategoriesPage = lazy(() =>
     default: m.CategoriesPage,
   })),
 );
+const ReportsPage = lazy(() =>
+  import('@/features/reports/pages/reports-page.tsx').then((m) => ({ default: m.ReportsPage })),
+);
+const HistoryPage = lazy(() =>
+  import('@/features/reports/pages/history-page.tsx').then((m) => ({ default: m.HistoryPage })),
+);
+const DataPage = lazy(() =>
+  import('@/features/settings/pages/data-page.tsx').then((m) => ({ default: m.DataPage })),
+);
 const MembersPage = lazy(() =>
   import('@/features/members/pages/members-page.tsx').then((m) => ({ default: m.MembersPage })),
 );
 const SettingsPage = lazy(() =>
   import('@/features/settings/pages/settings-page.tsx').then((m) => ({
     default: m.SettingsPage,
-  })),
-);
-const ComingSoonPage = lazy(() =>
-  import('@/features/placeholder/pages/coming-soon-page.tsx').then((m) => ({
-    default: m.ComingSoonPage,
   })),
 );
 const MorePage = lazy(() =>
@@ -67,18 +71,13 @@ const appRoutes: RouteObject[] = [
   { path: 'expenses/goals', element: <GoalsPage /> },
   {
     element: <RequireAdmin />,
-    children: [{ path: 'expenses/categories', element: <CategoriesPage /> }],
+    children: [
+      { path: 'expenses/categories', element: <CategoriesPage /> },
+      { path: 'settings/data', element: <DataPage /> },
+    ],
   },
-  {
-    path: 'reports',
-    element: (
-      <ComingSoonPage
-        title="Reportes"
-        phase={5}
-        description="Cumplimiento semanal por miembro, historial del año y gastos frente a metas."
-      />
-    ),
-  },
+  { path: 'reports', element: <ReportsPage /> },
+  { path: 'reports/history', element: <HistoryPage /> },
   { path: 'members', element: <MembersPage /> },
   { path: 'settings', element: <SettingsPage /> },
   { path: 'more', element: <MorePage /> },

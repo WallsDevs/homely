@@ -12,7 +12,7 @@ export function Card({ className, ...props }: ComponentProps<'section'>) {
 
 type CardHeaderProps = {
   title: string;
-  subtitle?: string;
+  subtitle?: string | undefined;
   action?: ReactNode;
 };
 

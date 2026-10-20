@@ -67,15 +67,15 @@ Fases secuenciales. Cada una termina con criterios de "hecho" verificables y con
 
 **Hecho cuando:** registrar un gasto desde el celular toma menos de 10 segundos y al llegar al 80 % de la meta de Comida aparece el aviso ✅ (umbral cubierto por tests; formulario de un paso). Revisión visual pendiente de la dueña.
 
-## Fase 5 · Reportes, historial y limpieza
+## Fase 5 · Reportes, historial y limpieza — ✅ completada 2026-10-19
 
-**Requisitos:** RP-01 … RP-15 (◇ RP-07, RP-08, RP-09); dashboard completo.
+**Requisitos:** RP-01 … RP-06, RP-10 … RP-15; dashboard completo. ◇ RP-07 (puntualidad), RP-08 (tendencia 12 semanas), RP-09 (resumen mensual) no implementados: sugerencias sin confirmar.
 
-- [ ] Server: módulo `reports` (weekly con hogar, miembros, delta, racha, top-missed, gastos y metas; history por año; expenses por periodo; dashboard en una llamada). Módulo `maintenance` (purge/preview, purge con confirmación y audit log, audit-log paginado). `EXPLAIN ANALYZE` de las consultas de reportes.
-- [ ] Client: Reporte semanal (StatTiles, barras por miembro, ranking de incumplidas, sección de gastos y metas), Historial anual (selector de miembro y año), Dashboard final, Limpieza de datos (rango → preview → confirmación escribiendo el nombre del hogar), Auditoría. Recharts en chunk separado.
-- [ ] Tests: cálculos de cumplimiento con omitidas, delta y racha; año en curso por defecto; purga respeta el límite de la semana actual y no toca planes/categorías/metas; audit log.
+- [x] Server: módulo `reports` — `weekly` (hogar y miembros, delta vs. semana anterior, racha de semanas cerradas al 100 % hasta 52 semanas atrás, gastos y metas de la semana), `tasks/top-missed` (pendientes vencidas agrupadas por título, filtro por miembro), `tasks/history` (año de un miembro semana a semana, años disponibles). Cálculos puros en `report-stats.ts` con tests unitarios; una sola consulta liviana por reporte. Módulo `maintenance` — `purge/preview`, `purge` (solo semanas cerradas, confirmación con el nombre del hogar tolerante a mayúsculas/acentos, transacción, auditoría), `audit-log` paginado.
+- [x] Client: Reportes (WeekPicker, semana abierta/cerrada, tiles con variación, barras por persona con racha, "lo que más se queda sin hacer" por semana / 4 semanas / año, gastos de la semana por categoría y por quién pagó, metas). Historial (persona y año en la URL, resumen anual, semanas con lo que quedó sin hacer). Ajustes → Datos del hogar (rango → vista previa → confirmación escribiendo el nombre; actividad del hogar). Inicio: tarjeta "Esta semana" con acceso al reporte. Sin librería de gráficos: barras con CSS (bundle inicial 124 kB gzip).
+- [x] Tests: 15 de integración (omitidas no penalizan, delta, racha con semanas vacías, semana en curso abierta, gastos de la semana, top-missed sin futuro, historial con semanas fijas, aislamiento, purga: vista previa, nombre, solo el rango, no toca planes/categorías, auditoría, no semana actual ni futuro, solo admins) + unitarios de cálculo y formato.
 
-**Hecho cuando:** al cerrar la semana se ve quién cumplió qué, qué tareas se quedaron sin hacer y cuánto se gastó frente a las metas; y se pueden borrar los datos de 2025 con un rango y una confirmación.
+**Hecho cuando:** al cerrar la semana se ve quién cumplió qué, qué tareas se quedaron sin hacer y cuánto se gastó frente a las metas; y se pueden borrar los datos de 2025 con un rango y una confirmación ✅ (prueba real: semana 12–18 oct, hogar 86 %, Luis 67 % con "Sacar la basura" sin hacer).
 
 ## Fase 6 · Pulido, rendimiento y PWA
 

@@ -135,10 +135,10 @@ REST + JSON bajo `/api/v1`. Toda ruta salvo `auth/*` y `health` requiere access 
 |---|---|---|---|
 | GET | `/reports/weekly?week=YYYY-MM-DD` | miembro | RP-01, RP-02, RP-03, RP-05, gastos de la semana y estado de metas |
 | GET | `/reports/tasks/top-missed?from&to` | miembro | RP-04 |
-| GET | `/reports/tasks/history?memberId&year` | miembro | RP-11 (semanas del año) |
-| GET | `/reports/tasks/trend?weeks=12` | miembro | **[Sugerencia RP-08]** |
-| GET | `/reports/expenses?period=week\|month&date=` | miembro | EX-08 |
-| GET | `/reports/dashboard` | miembro | agrega lo que necesita la pantalla de inicio en **una sola llamada** |
+| GET | `/reports/tasks/history?memberId&year` | miembro | RP-11 (semanas del año, años disponibles, resumen) |
+| GET | `/reports/tasks/trend?weeks=12` | miembro | **[Sugerencia RP-08, no implementada]** |
+
+> Implementado distinto a lo planeado: los gastos por periodo viven en `GET /expenses/summary` (también incluidos en `/reports/weekly`), y el dashboard compone sus tarjetas con las consultas existentes (cacheadas por TanStack Query) en lugar de un endpoint `/reports/dashboard`.
 
 ### Maintenance
 | Método | Ruta | Rol | Descripción |
