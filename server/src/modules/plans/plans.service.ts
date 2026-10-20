@@ -2,7 +2,7 @@ import type { IsoDate, Plan, PlanDetail, createPlanSchema, updatePlanSchema } fr
 import type { Prisma } from '@prisma/client';
 import type { z } from 'zod';
 import type { HouseholdCtx } from '../../lib/context.ts';
-import { fromDbDate, toDbDate, todayIn } from '../../lib/dates.ts';
+import { addDays, fromDbDate, toDbDate, todayIn } from '../../lib/dates.ts';
 import { AppError } from '../../lib/errors.ts';
 import { prisma } from '../../lib/prisma.ts';
 import { assertAssignable } from '../members/members.service.ts';
@@ -14,6 +14,7 @@ import {
   resetFuture,
   type HouseholdCalendar,
 } from './plan-generation.ts';
+import { pausesOverlapping, type PauseRule } from './plan-pauses.ts';
 
 type CreatePlanData = z.output<typeof createPlanSchema>;
 type UpdatePlanData = z.output<typeof updatePlanSchema>;
@@ -25,7 +26,7 @@ const planInclude = {
 } as const;
 type PlanRow = Prisma.TaskPlanGetPayload<{ include: typeof planInclude }>;
 
-function toPlan(row: PlanRow, today: IsoDate): Plan {
+function toPlan(row: PlanRow, today: IsoDate, pauses: readonly PauseRule[]): Plan {
   return {
     id: row.id,
     title: row.title,
@@ -36,7 +37,7 @@ function toPlan(row: PlanRow, today: IsoDate): Plan {
     isActive: row.isActive,
     startsOn: row.startsOn ? fromDbDate(row.startsOn) : null,
     endsOn: row.endsOn ? fromDbDate(row.endsOn) : null,
-    nextDueDate: nextOccurrence(row, today),
+    nextDueDate: nextOccurrence(row, today, pauses),
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -48,6 +49,16 @@ const calendarOf = (ctx: HouseholdCtx): HouseholdCalendar => ({
 });
 
 const todayOf = (ctx: HouseholdCtx) => todayIn(ctx.household.timezone);
+
+/** Pausas que pueden afectar la próxima fecha de un plan (mismo horizonte que `nextOccurrence`). */
+function upcomingPauses(ctx: HouseholdCtx, today: IsoDate) {
+  return pausesOverlapping(ctx.householdId, today, addDays(today, 90));
+}
+
+async function present(ctx: HouseholdCtx, row: PlanRow): Promise<Plan> {
+  const today = todayOf(ctx);
+  return toPlan(row, today, await upcomingPauses(ctx, today));
+}
 
 async function findPlan(ctx: HouseholdCtx, id: string): Promise<PlanRow> {
   const plan = await prisma.taskPlan.findFirst({
@@ -68,7 +79,8 @@ export const plansService = {
       orderBy: [{ isActive: 'desc' }, { createdAt: 'asc' }],
     });
     const today = todayOf(ctx);
-    return rows.map((row) => toPlan(row, today));
+    const pauses = await upcomingPauses(ctx, today);
+    return rows.map((row) => toPlan(row, today, pauses));
   },
 
   async get(ctx: HouseholdCtx, id: string): Promise<PlanDetail> {
@@ -80,7 +92,7 @@ export const plansService = {
       orderBy: { dueDate: 'asc' },
       take: UPCOMING_LIMIT,
     });
-    return { plan: toPlan(plan, today), upcoming: upcoming.map((row) => toTask(row, today)) };
+    return { plan: await present(ctx, plan), upcoming: upcoming.map((row) => toTask(row, today)) };
   },
 
   /** PL-01 + PL-05: al crear, se generan ya las tareas de los días que quedan de esta semana. */
@@ -100,7 +112,7 @@ export const plansService = {
       include: planInclude,
     });
     await materializeCurrentWeek(calendarOf(ctx));
-    return toPlan(row, todayOf(ctx));
+    return present(ctx, row);
   },
 
   /**
@@ -130,13 +142,13 @@ export const plansService = {
     });
 
     if (row.isActive) await materializeCurrentWeek(calendarOf(ctx));
-    return toPlan(row, todayOf(ctx));
+    return present(ctx, row);
   },
 
   /** PL-05: desactivar quita las pendientes futuras; activar genera lo que queda de la semana. */
   async setActive(ctx: HouseholdCtx, id: string, isActive: boolean): Promise<Plan> {
     const plan = await findPlan(ctx, id);
-    if (plan.isActive === isActive) return toPlan(plan, todayOf(ctx));
+    if (plan.isActive === isActive) return present(ctx, plan);
 
     const row = await prisma.$transaction(async (tx) => {
       const updated = await tx.taskPlan.update({
@@ -149,7 +161,7 @@ export const plansService = {
     });
 
     if (isActive) await materializeCurrentWeek(calendarOf(ctx));
-    return toPlan(row, todayOf(ctx));
+    return present(ctx, row);
   },
 
   /** PL-01: se borra el plan y sus pendientes futuras; el historial queda con `planId = null`. */

@@ -98,6 +98,15 @@ Fases secuenciales. Cada una termina con criterios de "hecho" verificables y con
 - Migrar a Prisma 7 cuando se disponga de tiempo (cierra los avisos de `npm audit`).
 - Reducir la imagen Docker (635 MB): la mayor parte es Prisma CLI + motores; con Prisma 7 y driver adapters debería bajar.
 
+## v1.1 · Pausas de planes («modo vacaciones») — ✅ completada 2026-10-20
+
+**Requisitos:** PL-09 … PL-12 (petición de la dueña tras la v1).
+
+- [x] Modelo `PlanPause` (migración aditiva) con tres alcances: hogar, persona o plan.
+- [x] Server: `plan-pauses.ts` (`isPaused`, `pausesOverlapping`), `materializeWeek` salta días pausados, `resetRange` (generaliza `resetFuture`) rehace la unión de rangos al crear/editar/borrar; `nextOccurrence` salta pausas con horizonte de 90 días. Módulo `/plan-pauses` (list, create, update, delete) con auditoría. 10 tests de integración + 4 unitarios + 5 de contratos.
+- [x] Client: tarjeta "Pausas" en Planes (alta con alcance, fechas y motivo; editar; terminar hoy / eliminar), insignia "En pausa hasta…" por plan, aviso en el Inicio. 6 tests.
+- [x] E2E: crear pausa de hogar, verla en el Inicio y terminarla (móvil y escritorio).
+
 ## Después de la v1 (ideas aparcadas)
 
 Notificaciones push (recordatorio de tareas de hoy, meta excedida) · recurrencias no semanales · varios hogares por usuario con selector · recuperación de contraseña por correo · adjuntar recibo a un gasto · widgets de pantalla de inicio (PWA) · modo "invitado" de solo lectura.

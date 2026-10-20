@@ -63,20 +63,31 @@ test('recorrido por todas las pantallas', async ({ page }) => {
   }
 });
 
-test('completar una tarea de hoy y deshacer', async ({ page }) => {
+test('crear una tarea para hoy, completarla y deshacer', async ({ page }) => {
+  const title = `Regar las plantas ${test.info().project.name}`;
   await login(page);
   await page.goto('/tasks');
-  const check = page.getByRole('checkbox', { name: /^Completar «/ }).first();
-  await expect(check).toBeVisible();
-  const label = (await check.getAttribute('aria-label')) ?? '';
-  const title = label.replace(/^Completar «|»$/g, '');
+  await page
+    .getByRole('button', { name: isMobile(page) ? 'Crear' : 'Nueva tarea' })
+    .first()
+    .click();
+  if (isMobile(page)) await page.getByRole('button', { name: 'Nueva tarea' }).click();
 
+  const sheet = page.getByRole('dialog', { name: 'Nueva tarea' });
+  await expect(sheet).toBeVisible();
+  await sheet.getByLabel('¿Qué hay que hacer?').fill(title);
+  await snap(page, '15-nueva-tarea');
+  await sheet.getByRole('button', { name: 'Crear tarea' }).click();
+  await expect(page.getByText('Tarea creada')).toBeVisible();
+
+  const check = page.getByRole('checkbox', { name: `Completar «${title}»` });
+  await expect(check).toBeVisible();
   await check.check();
   await expect(page.getByText('Tarea completada')).toBeVisible();
   await expect(
     page.getByRole('checkbox', { name: `Marcar «${title}» como pendiente` }),
   ).toBeChecked();
-  await snap(page, '15-tarea-completada');
+  await snap(page, '16-tarea-completada');
 
   await page.getByRole('button', { name: 'Deshacer' }).click();
   await expect(page.getByRole('checkbox', { name: `Completar «${title}»` })).not.toBeChecked();
@@ -97,7 +108,7 @@ test('registrar un gasto desde el botón crear', async ({ page }) => {
   await sheet.getByLabel('Monto').fill('12,50');
   await sheet.getByText('Comida', { exact: true }).click();
   await sheet.getByLabel('Descripción (opcional)').fill(description);
-  await snap(page, '16-nuevo-gasto');
+  await snap(page, '17-nuevo-gasto');
   await sheet.getByRole('button', { name: 'Guardar gasto' }).click();
 
   await expect(page.getByText(/Gasto de .*12,50.* guardado/)).toBeVisible();
@@ -111,9 +122,36 @@ test('modo oscuro', async ({ browser }, testInfo) => {
   });
   const page = await context.newPage();
   await login(page);
-  await snap(page, '17-inicio-oscuro');
+  await snap(page, '18-inicio-oscuro');
   await page.goto('/reports');
   await expect(page.getByRole('heading', { level: 1, name: 'Reportes' })).toBeVisible();
-  await snap(page, '18-reportes-oscuro');
+  await snap(page, '19-reportes-oscuro');
   await context.close();
+});
+
+test('pausar los planes del hogar y terminar la pausa', async ({ page }) => {
+  await login(page);
+  await page.goto('/plans');
+  await page.getByRole('button', { name: 'Pausar' }).click();
+
+  const sheet = page.getByRole('dialog', { name: 'Pausar planes' });
+  await expect(sheet).toBeVisible();
+  await sheet.getByLabel('Motivo (opcional)').fill('Vacaciones E2E');
+  await snap(page, '20-pausar-planes');
+  await sheet.getByRole('button', { name: 'Pausar' }).click();
+
+  await expect(page.getByText(/Planes en pausa\./)).toBeVisible();
+  await expect(page.getByText('Todo el hogar')).toBeVisible();
+  await expect(page.getByText('En curso')).toBeVisible();
+  await snap(page, '21-planes-en-pausa');
+
+  await page.goto('/');
+  await expect(page.getByRole('link', { name: /Planes en pausa hasta/ })).toBeVisible();
+  await snap(page, '22-inicio-en-pausa');
+
+  // Empezó hoy: "terminar" equivale a eliminarla y los planes vuelven de inmediato.
+  await page.goto('/plans');
+  await page.getByRole('button', { name: 'Terminar pausa hoy' }).click();
+  await expect(page.getByText('Pausa eliminada')).toBeVisible();
+  await expect(page.getByText('Sin pausas programadas.')).toBeVisible();
 });

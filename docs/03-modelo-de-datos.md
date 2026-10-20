@@ -233,6 +233,28 @@ model Task {
   @@index([assigneeId, dueDate, status])
 }
 
+/// PL-09 (v1.1): pausa de la generación por fechas. Alcance: hogar (memberId y planId nulos),
+/// persona (memberId → planes por assigneeId) o plan (planId). Nunca ambos ids a la vez.
+model PlanPause {
+  id          String   @id @default(cuid())
+  householdId String
+  memberId    String?
+  planId      String?
+  startsOn    DateTime @db.Date
+  endsOn      DateTime @db.Date
+  reason      String?
+  createdById String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  household Household   @relation(fields: [householdId], references: [id], onDelete: Cascade)
+  member    Membership? @relation("PausedMember", fields: [memberId], references: [id], onDelete: Cascade)
+  plan      TaskPlan?   @relation(fields: [planId], references: [id], onDelete: Cascade)
+  createdBy Membership? @relation("PauseCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([householdId, endsOn])
+}
+
 // ───────────── Gastos y metas ─────────────
 
 model ExpenseCategory {
@@ -335,6 +357,13 @@ Toda consulta semanal usa `dueDate BETWEEN weekStart AND weekEnd`. `date-fns` co
 > borrada a mano no reaparece. Nunca se generan días anteriores a hoy (zona del hogar).
 > Editar/pausar/eliminar un plan borra sus pendientes futuras y sus registros desde la semana
 > actual (`resetFuture`), y se regenera con la configuración nueva.
+>
+> **Pausas (PL-09, v1.1):** `materializeWeek` carga las `PlanPause` que solapan la semana y
+> descarta los días en que `isPaused(pauses, plan, day)` (`plan-pauses.ts`). Crear, editar o
+> borrar una pausa llama a `resetRange(tx, hogar, rango, alcance)` con la **unión** del rango
+> anterior y el nuevo: borra las tareas de plan pendientes de ese rango (filtradas por alcance)
+> y los `PlanMaterialization` de las semanas tocadas, y luego `materializeCurrentWeek` regenera
+> lo que corresponda. `resetFuture` es un caso particular de `resetRange`.
 ```
 for plan in activePlans(household):
   for weekday in plan.weekdays:

@@ -75,7 +75,7 @@ Reportes: los cálculos (cumplimiento, delta, racha) son funciones puras en `ser
 
 Gastos en el client: `ExpenseUIProvider` (en `AppLayout`) expone `useExpenseUI()` con `canEdit`, `openCreate`, `openEdit`. Montos con `useMoney()` (`features/expenses/lib/use-money.ts`, moneda del hogar); nunca sumar dinero en el client salvo para mostrar.
 
-Planes: toda generación de tareas pasa por `server/src/modules/plans/plan-generation.ts` (`materializeWeek`, `materializeForView`, `resetFuture`). No crear tareas de plan por otra vía.
+Planes: toda generación de tareas pasa por `server/src/modules/plans/plan-generation.ts` (`materializeWeek`, `materializeForView`, `resetRange`/`resetFuture`). No crear tareas de plan por otra vía. Las pausas con fechas (`PlanPause`) se evalúan solo con `isPaused` de `plan-pauses.ts`; cualquier cambio de pausa pasa por `resetRange` con la unión del rango viejo y el nuevo.
 
 Tareas en el client: `TaskUIProvider` (montado en `AppLayout`) expone `useTaskUI()` con `today`, `canResolve`, `toggle` (optimista con "Deshacer"), `openDetail`, `openCreate`, `openEdit`. Toda vista de tareas usa `TaskItem`; las cachés de tareas cuelgan de `taskKeys.all`.
 

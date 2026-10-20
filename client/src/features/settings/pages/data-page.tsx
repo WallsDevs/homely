@@ -200,6 +200,9 @@ const actionLabels: Record<string, string> = {
   MEMBER_JOINED: 'Se unió al hogar',
   INVITATION_CREATED: 'Creó un código de invitación',
   INVITATION_REVOKED: 'Revocó un código de invitación',
+  PLAN_PAUSE_CREATED: 'Pausó planes por unas fechas',
+  PLAN_PAUSE_UPDATED: 'Cambió las fechas de una pausa',
+  PLAN_PAUSE_DELETED: 'Eliminó una pausa de planes',
   HOUSEHOLD_UPDATED: 'Editó los datos del hogar',
 };
 

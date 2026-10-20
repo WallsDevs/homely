@@ -6,6 +6,7 @@ import {
   MonthSpendingCard,
 } from '@/features/expenses/components/month-spending-card.tsx';
 import { usePlans } from '@/features/plans/api/plans.ts';
+import { ActivePauseBanner } from '@/features/plans/components/pause-banner.tsx';
 import { WeekProgressCard } from '@/features/reports/components/week-progress-card.tsx';
 import { useMyTasks } from '@/features/tasks/api/tasks.ts';
 import { TaskItem } from '@/features/tasks/components/task-item.tsx';
@@ -28,6 +29,7 @@ export function DashboardPage() {
 
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="flex flex-col gap-4 lg:col-span-2">
+          <ActivePauseBanner />
           <GoalAlerts />
           <TodayCard />
           <UnassignedPlansAlert />

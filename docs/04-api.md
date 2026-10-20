@@ -104,6 +104,14 @@ REST + JSON bajo `/api/v1`. Toda ruta salvo `auth/*` y `health` requiere access 
 | PATCH | `/plans/:id/status` | ADMIN | `{ isActive }` — PL-05 (pausar quita pendientes futuras; activar genera lo que queda de la semana) |
 | DELETE | `/plans/:id` | ADMIN | elimina plan, conserva tareas históricas |
 
+### Plan pauses (v1.1, PL-09 … PL-12)
+| Método | Ruta | Rol | Descripción |
+|---|---|---|---|
+| GET | `/plan-pauses` | miembro | pausas activas y programadas (`endsOn >= hoy`), con `scope`, `member`, `plan`, `status` |
+| POST | `/plan-pauses` | ADMIN | `{ startsOn, endsOn, memberId? \| planId?, reason? }` — `endsOn` no puede ser pasado; miembro activo del hogar; quita las pendientes del rango |
+| PATCH | `/plan-pauses/:id` | ADMIN | `{ startsOn?, endsOn?, reason? }` — rehace la unión de rangos; `endsOn` = ayer para "terminar hoy" |
+| DELETE | `/plan-pauses/:id` | ADMIN | elimina y regenera los días liberados |
+
 ### Expense categories
 | Método | Ruta | Rol | Descripción |
 |---|---|---|---|

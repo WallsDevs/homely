@@ -18,7 +18,9 @@ import {
   WeekdayChips,
 } from '@/shared/ui/index.ts';
 import { describeWeekdays } from '@/shared/lib/weekdays.ts';
+import { activePauseFor, usePauses } from '../api/pauses.ts';
 import { usePlans, useSetPlanActive } from '../api/plans.ts';
+import { PausesCard } from '../components/pauses-card.tsx';
 import { PlanFormSheet } from '../components/plan-form-sheet.tsx';
 
 type FormState = { open: false } | { open: true; plan?: Plan };
@@ -44,6 +46,10 @@ export function PlansPage() {
         subtitle="Tareas que se asignan solas cada semana"
         action={isAdmin ? newPlanButton : undefined}
       />
+
+      <div className="mb-6">
+        <PausesCard />
+      </div>
 
       {plans.isPending ? (
         <div className="flex flex-col gap-3">
@@ -97,6 +103,8 @@ function PlanGroup({ plans, onEdit }: { plans: Plan[]; onEdit: (plan: Plan) => v
 function PlanCard({ plan, onEdit }: { plan: Plan; onEdit: () => void }) {
   const { isAdmin } = useHouseholdSession();
   const { today } = useTaskUI();
+  const pauses = usePauses();
+  const activePause = activePauseFor(pauses.data, plan);
   const setActive = useSetPlanActive();
   const toast = useToast();
 
@@ -119,6 +127,11 @@ function PlanCard({ plan, onEdit }: { plan: Plan; onEdit: () => void }) {
       <div className="flex items-start gap-2">
         <h3 className="min-w-0 flex-1 truncate text-body font-medium">{plan.title}</h3>
         {plan.priority === 'HIGH' && <Badge tone="warning">Alta</Badge>}
+        {activePause && (
+          <Badge tone="info">
+            En pausa hasta {dueLabel(activePause.endsOn, today).toLowerCase()}
+          </Badge>
+        )}
       </div>
       <WeekdayChips value={plan.weekdays} size="sm" />
       <p className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-small text-fg-3">

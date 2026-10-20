@@ -16,6 +16,7 @@ import { healthRouter } from './modules/health/health.routes.ts';
 import { householdsRouter } from './modules/households/households.routes.ts';
 import { invitationsRouter } from './modules/invitations/invitations.routes.ts';
 import { membersRouter } from './modules/members/members.routes.ts';
+import { pausesRouter } from './modules/plans/pauses.routes.ts';
 import { plansRouter } from './modules/plans/plans.routes.ts';
 import { categoriesRouter } from './modules/categories/categories.routes.ts';
 import { expensesRouter } from './modules/expenses/expenses.routes.ts';
@@ -82,6 +83,7 @@ export function createApp({
   api.use('/members', requireAuth, requireHousehold, membersRouter);
   api.use('/tasks', requireAuth, requireHousehold, tasksRouter);
   api.use('/plans', requireAuth, requireHousehold, plansRouter);
+  api.use('/plan-pauses', requireAuth, requireHousehold, pausesRouter);
   api.use('/categories', requireAuth, requireHousehold, categoriesRouter);
   api.use('/expenses', requireAuth, requireHousehold, expensesRouter);
   api.use('/goals', requireAuth, requireHousehold, goalsRouter);

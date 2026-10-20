@@ -86,6 +86,10 @@ Un plan evita asignar lo mismo cada semana. Ejemplo guía: *"Sacar la basura —
 | PL-06 | **[Sugerencia] Rotación.** En lugar de un responsable fijo, el plan tiene una lista ordenada de miembros y cada semana el responsable avanza una posición (semana 1 Luis, semana 2 Iveth, semana 3 Luis…). Útil para repartir tareas que nadie quiere. |
 | PL-07 | Vista de planes: lista con título, días de la semana (chips `L M X J V S D` resaltados), responsable, estado. Ordenados por activos primero. |
 | PL-08 | Si el responsable fijo de un plan se desactiva, el plan queda "sin responsable", se marca visualmente y el admin recibe un aviso en el dashboard. Las tareas futuras se generan sin asignar. |
+| PL-09 | **Pausas con fechas («modo vacaciones»).** Un admin crea una pausa con `startsOn`–`endsOn` y un alcance: **todo el hogar**, **una persona** (los planes cuyo responsable es ella) o **un plan concreto**. Motivo opcional. Puede programarse con antelación, editarse (fechas y motivo), eliminarse o "terminarse hoy". Durante la pausa no se generan tareas de los planes afectados; al terminar, la generación vuelve sola. Todos la ven; solo admins la cambian. |
+| PL-10 | Al crear o alargar una pausa se **eliminan las tareas de plan pendientes** del rango afectado; las completadas u omitidas y las tareas manuales se conservan. Al acortar o eliminar la pausa, los días liberados **se regeneran solos** (misma idempotencia de PL-03). |
+| PL-11 | Una semana en pausa no penaliza: sin tareas, el cumplimiento sale "—" y las rachas (RP-05) no se rompen. |
+| PL-12 | Mientras hay una pausa en curso, el Inicio muestra un aviso discreto ("Planes en pausa hasta el 28 dic · Vacaciones", "Los planes de Luis están en pausa hasta…") y cada plan afectado lleva la insignia "En pausa hasta…" en la lista de Planes. |
 
 ---
 
@@ -189,4 +193,5 @@ Combina lo esencial de todos los módulos en una sola vista, priorizando el móv
 | Metas opcionales de gasto, aviso al acercarse, ver en reportes si se excedió | EX-05, EX-06, EX-07, EX-08 |
 | Más ideas para gastos (sugerencias pedidas) | EX-09, EX-10, EX-11 |
 | Dos administradores con permisos iguales | HM-02, HM-05, HM-08, [01-usuarios-y-roles.md](01-usuarios-y-roles.md) |
+| Pausar las planificaciones automáticas en vacaciones, por hogar o por persona (v1.1) | PL-09 … PL-12 |
 | Totalmente responsive, usable fuera de casa desde cualquier dispositivo | TK-09, EX-01, Dashboard, [05-frontend.md](05-frontend.md), [06-diseno-ui.md](06-diseno-ui.md) |
