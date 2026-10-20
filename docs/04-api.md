@@ -119,7 +119,8 @@ REST + JSON bajo `/api/v1`. Toda ruta salvo `auth/*` y `health` requiere access 
 | POST | `/expenses` | miembro | crear (`registeredBy` = yo) |
 | PATCH | `/expenses/:id` | dueño o ADMIN | editar |
 | DELETE | `/expenses/:id` | dueño o ADMIN | eliminar |
-| GET | `/expenses/export.csv` | miembro | **[Sugerencia EX-11]** mismos filtros |
+| GET | `/expenses/summary?period=MONTHLY\|WEEKLY&date=` | miembro | total, `previousTotal`, `byCategory`, `byPayer` y metas con progreso (dashboard y reportes) |
+| GET | `/expenses/export.csv` | miembro | **[Sugerencia EX-11, no implementada]** mismos filtros |
 
 ### Budget goals
 | Método | Ruta | Rol | Descripción |

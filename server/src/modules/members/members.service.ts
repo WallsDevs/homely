@@ -29,15 +29,16 @@ async function findTarget(tx: Tx, ctx: HouseholdCtx, memberId: string) {
   return target;
 }
 
-/** Solo se asigna trabajo a miembros activos del mismo hogar (tareas y planes). */
+/** Solo se asigna trabajo (o un pago) a miembros activos del mismo hogar. */
 export async function assertAssignable(
   householdId: string,
   memberId: string | null | undefined,
+  field = 'assigneeId',
 ): Promise<void> {
   if (!memberId) return;
   const member = await membersRepository.findInHousehold(householdId, memberId);
   if (!member?.isActive) {
-    throw AppError.validation({ assigneeId: ['Elige un miembro activo del hogar'] });
+    throw AppError.validation({ [field]: ['Elige un miembro activo del hogar'] });
   }
 }
 

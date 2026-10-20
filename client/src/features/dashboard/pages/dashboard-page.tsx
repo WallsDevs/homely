@@ -1,11 +1,15 @@
-import { ChevronRight, PartyPopper, TriangleAlert, Wallet } from 'lucide-react';
+import { ChevronRight, PartyPopper, TriangleAlert } from 'lucide-react';
 import { Link } from 'react-router';
 import { useHouseholdSession } from '@/features/auth/api/session.ts';
+import {
+  GoalAlerts,
+  MonthSpendingCard,
+} from '@/features/expenses/components/month-spending-card.tsx';
 import { usePlans } from '@/features/plans/api/plans.ts';
 import { useMyTasks } from '@/features/tasks/api/tasks.ts';
 import { TaskItem } from '@/features/tasks/components/task-item.tsx';
 import { TaskListSkeleton } from '@/features/tasks/components/task-list.tsx';
-import { Badge, Card, CardHeader, EmptyState, PageHeader, Skeleton } from '@/shared/ui/index.ts';
+import { Badge, Card, EmptyState, PageHeader, Skeleton } from '@/shared/ui/index.ts';
 import { useHealth } from '../api/health.ts';
 
 const todayLabel = new Intl.DateTimeFormat('es', {
@@ -23,19 +27,13 @@ export function DashboardPage() {
 
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="flex flex-col gap-4 lg:col-span-2">
+          <GoalAlerts />
           <TodayCard />
           <UnassignedPlansAlert />
         </div>
 
         <div className="flex flex-col gap-4">
-          <Card>
-            <CardHeader title="Gastos del mes" />
-            <EmptyState
-              icon={<Wallet />}
-              title="Sin gastos todavía"
-              description="El total del mes y tus metas se mostrarán aquí."
-            />
-          </Card>
+          <MonthSpendingCard />
           <SystemStatus />
         </div>
       </div>

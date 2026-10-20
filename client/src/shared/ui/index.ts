@@ -1,10 +1,13 @@
+export { AmountInput } from './amount-input.tsx';
 export { Avatar } from './avatar.tsx';
 export { Badge, type BadgeTone } from './badge.tsx';
 export { Button, IconButton } from './button.tsx';
 export { Card, CardHeader } from './card.tsx';
+export { CategoryIcon } from './category-icon.tsx';
 export { EmptyState } from './empty-state.tsx';
 export { FormAlert } from './form-alert.tsx';
 export { Input } from './input.tsx';
+export { MonthPicker } from './month-picker.tsx';
 export { PageHeader } from './page-header.tsx';
 export { ProgressBar } from './progress-bar.tsx';
 export { SegmentedControl, type SegmentOption } from './segmented-control.tsx';

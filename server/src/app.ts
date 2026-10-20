@@ -16,6 +16,9 @@ import { householdsRouter } from './modules/households/households.routes.ts';
 import { invitationsRouter } from './modules/invitations/invitations.routes.ts';
 import { membersRouter } from './modules/members/members.routes.ts';
 import { plansRouter } from './modules/plans/plans.routes.ts';
+import { categoriesRouter } from './modules/categories/categories.routes.ts';
+import { expensesRouter } from './modules/expenses/expenses.routes.ts';
+import { goalsRouter } from './modules/goals/goals.routes.ts';
 import { tasksRouter } from './modules/tasks/tasks.routes.ts';
 
 /** Crea la app sin escuchar en un puerto, para poder testearla con Supertest. */
@@ -52,6 +55,9 @@ export function createApp() {
   api.use('/members', requireAuth, requireHousehold, membersRouter);
   api.use('/tasks', requireAuth, requireHousehold, tasksRouter);
   api.use('/plans', requireAuth, requireHousehold, plansRouter);
+  api.use('/categories', requireAuth, requireHousehold, categoriesRouter);
+  api.use('/expenses', requireAuth, requireHousehold, expensesRouter);
+  api.use('/goals', requireAuth, requireHousehold, goalsRouter);
 
   app.use('/api/v1', api);
   app.use(notFoundHandler);

@@ -32,6 +32,12 @@
       {
         "allow": ["**/*.css", "@testing-library/jest-dom/vitest"]
       }
+    ],
+    "no-underscore-dangle": [
+      "warn",
+      {
+        "allow": ["_sum", "_count", "_all", "_max", "_min", "_avg"]
+      }
     ]
   },
   "ignorePatterns": [

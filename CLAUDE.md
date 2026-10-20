@@ -66,7 +66,9 @@ npm run build            # shared → server → client
 
 Usuarios del seed: `iveth@homely.dev` y `luis@homely.dev`, contraseña `homely1234` (ambos ADMIN).
 
-Estado actual: **Fases 0 a 3 completadas.** Siguiente: Fase 4 (gastos, categorías y metas) en `docs/09-roadmap.md`.
+Estado actual: **Fases 0 a 4 completadas.** Siguiente: Fase 5 (reportes, historial y limpieza de datos) en `docs/09-roadmap.md`.
+
+Gastos en el client: `ExpenseUIProvider` (en `AppLayout`) expone `useExpenseUI()` con `canEdit`, `openCreate`, `openEdit`. Montos con `useMoney()` (`features/expenses/lib/use-money.ts`, moneda del hogar); nunca sumar dinero en el client salvo para mostrar.
 
 Planes: toda generación de tareas pasa por `server/src/modules/plans/plan-generation.ts` (`materializeWeek`, `materializeForView`, `resetFuture`). No crear tareas de plan por otra vía.
 

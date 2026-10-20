@@ -32,3 +32,10 @@ describe('weekRangeLabel', () => {
     expect(weekRangeLabel('2026-10-26', '2026-11-01')).toBe('26 oct – 1 nov');
   });
 });
+
+describe('monthLabel', () => {
+  it('nombra el mes y el año', async () => {
+    const { monthLabel } = await import('./format-date.ts');
+    expect(monthLabel('2026-10-19')).toBe('Octubre 2026');
+  });
+});

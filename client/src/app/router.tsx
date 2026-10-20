@@ -1,6 +1,6 @@
 import { lazy } from 'react';
 import { createBrowserRouter, type RouteObject } from 'react-router';
-import { RequireGuest, RequireHousehold, RequireNoHousehold } from './guards.tsx';
+import { RequireAdmin, RequireGuest, RequireHousehold, RequireNoHousehold } from './guards.tsx';
 import { AppLayout } from './layouts/app-layout.tsx';
 import { AuthLayout } from './layouts/auth-layout.tsx';
 
@@ -30,6 +30,17 @@ const BoardPage = lazy(() =>
 const PlansPage = lazy(() =>
   import('@/features/plans/pages/plans-page.tsx').then((m) => ({ default: m.PlansPage })),
 );
+const ExpensesPage = lazy(() =>
+  import('@/features/expenses/pages/expenses-page.tsx').then((m) => ({ default: m.ExpensesPage })),
+);
+const GoalsPage = lazy(() =>
+  import('@/features/expenses/pages/goals-page.tsx').then((m) => ({ default: m.GoalsPage })),
+);
+const CategoriesPage = lazy(() =>
+  import('@/features/expenses/pages/categories-page.tsx').then((m) => ({
+    default: m.CategoriesPage,
+  })),
+);
 const MembersPage = lazy(() =>
   import('@/features/members/pages/members-page.tsx').then((m) => ({ default: m.MembersPage })),
 );
@@ -52,15 +63,11 @@ const appRoutes: RouteObject[] = [
   { path: 'tasks', element: <TasksPage /> },
   { path: 'tasks/board', element: <BoardPage /> },
   { path: 'plans', element: <PlansPage /> },
+  { path: 'expenses', element: <ExpensesPage /> },
+  { path: 'expenses/goals', element: <GoalsPage /> },
   {
-    path: 'expenses',
-    element: (
-      <ComingSoonPage
-        title="Gastos"
-        phase={4}
-        description="Registra gastos en segundos, por categoría, con metas opcionales."
-      />
-    ),
+    element: <RequireAdmin />,
+    children: [{ path: 'expenses/categories', element: <CategoriesPage /> }],
   },
   {
     path: 'reports',

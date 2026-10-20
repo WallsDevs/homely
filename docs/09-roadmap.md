@@ -56,16 +56,16 @@ Fases secuenciales. Cada una termina con criterios de "hecho" verificables y con
 
 **Hecho cuando:** "Sacar la basura · miércoles y sábado · Luis" genera sus dos tareas cada semana sin que nadie haga nada, y lo hace una sola vez ✅ (tests + prueba real: la semana siguiente apareció con basura el miércoles 28 y el sábado 31 para Luis).
 
-## Fase 4 · Gastos, categorías y metas
+## Fase 4 · Gastos, categorías y metas — ✅ completada 2026-10-19
 
-**Requisitos:** EX-01 … EX-08 (◇ EX-09, EX-10, EX-11).
+**Requisitos:** EX-01 … EX-08. ◇ EX-09 (gastos recurrentes), EX-11 (CSV) no implementados: sugerencias sin confirmar. EX-10 (balance) cubierto en parte: el resumen trae "quién pagó cuánto" (`byPayer`); sin liquidaciones.
 
-- [ ] `shared`: schemas de expense, category, goal; constantes de umbrales.
-- [ ] Server: módulos `categories` (CRUD, archivar, orden), `expenses` (list con filtros, totals y cursor; CRUD con permiso dueño/admin), `goals` (CRUD, `DUPLICATE_GOAL`, cálculo de `spent/ratio/status` por periodo en curso). ◇ `RecurringExpense` + job mensual. ◇ export CSV.
-- [ ] Client: Gastos (lista por día, total del filtro, filtros, búsqueda), Nuevo gasto (AmountInput, chips de categoría, fecha, descripción) en el FAB, Categorías (admin), Metas (tarjetas con ProgressBar y Badge), banner de aviso en el dashboard. ◇ Balance entre miembros.
-- [ ] Tests: precisión decimal, totales por filtro, estado de metas en los umbrales (79.9 / 80 / 100 / 100.1 %), periodo mensual vs semanal según tz, permisos de edición.
+- [x] `shared`: schemas de categorías (iconos permitidos), gastos, metas y resumen; `goalStatusOf` con los umbrales de EX-06; `periodRange`/`startOfMonth`/`endOfMonth`. El dinero viaja como string decimal.
+- [x] Server: módulos `categories` (crear, editar, archivar, reordenar; nombres únicos), `expenses` (filtros por mes, categoría, quién pagó y texto; totales del filtro completo; cursor; permiso dueño/admin; `GET /expenses/summary` con total, vs. periodo anterior, por categoría, por pagador y metas), `goals` (CRUD, `DUPLICATE_GOAL`, progreso con consultas agregadas por periodo). Helper `withoutUndefined` para PATCH parciales con Prisma.
+- [x] Client: Gastos (selector de mes, total del filtro, filtros, búsqueda, lista por día con subtotal), formulario de gasto (monto grande con teclado numérico que acepta coma, chips de categoría, Hoy/Ayer, descripción, quién pagó y forma de pago plegados) desde el "+" en cualquier pantalla, Metas (tarjetas con barra y estado), Categorías (admin: color, icono, orden, archivar). En el Inicio: gasto del mes, comparación con el mes anterior, top 3 categorías y avisos de metas en aviso o excedidas.
+- [x] Tests: 16 de integración (precisión decimal 0.10 + 0.20, totales del filtro con paginación, umbrales 79,9 / 80 / 100 / 100,1 %, meta total vs. por categoría, semanal vs. mensual, permisos, categorías archivadas y de otro hogar, resumen) + tests de client (monto con coma, permisos por fila, tarjeta de meta).
 
-**Hecho cuando:** registrar un gasto desde el celular toma menos de 10 segundos y al llegar al 80 % de la meta de Comida aparece el aviso.
+**Hecho cuando:** registrar un gasto desde el celular toma menos de 10 segundos y al llegar al 80 % de la meta de Comida aparece el aviso ✅ (umbral cubierto por tests; formulario de un paso). Revisión visual pendiente de la dueña.
 
 ## Fase 5 · Reportes, historial y limpieza
 

@@ -67,3 +67,32 @@ export function isValidTimeZone(timeZone: string): boolean {
     return false;
   }
 }
+
+/** Primer día del mes calendario de `day`. */
+export function startOfMonth(day: string): string {
+  return `${day.slice(0, 7)}-01`;
+}
+
+/** Último día del mes calendario de `day`. */
+export function endOfMonth(day: string): string {
+  const [year = 0, month = 1] = day.split('-').map(Number);
+  return fromMs(Date.UTC(year, month, 0));
+}
+
+export type PeriodKind = 'WEEKLY' | 'MONTHLY';
+
+/** Rango del periodo (semana del hogar o mes calendario) que contiene `day`. */
+export function periodRange(
+  period: PeriodKind,
+  day: string,
+  weekStartsOn: Weekday,
+): { start: string; end: string } {
+  return period === 'WEEKLY'
+    ? { start: startOfWeek(day, weekStartsOn), end: endOfWeek(day, weekStartsOn) }
+    : { start: startOfMonth(day), end: endOfMonth(day) };
+}
+
+/** Un día del periodo anterior al que empieza en `periodStart`. */
+export function previousPeriodDay(period: PeriodKind, periodStart: string): string {
+  return addDays(periodStart, period === 'WEEKLY' ? -7 : -1);
+}

@@ -8,7 +8,7 @@ export type IsoDate = z.infer<typeof isoDateSchema>;
 /** Monto positivo con hasta 2 decimales, transportado como string para no perder precisión. */
 export const moneySchema = z
   .string()
-  .regex(/^\d{1,10}(\.\d{1,2})?$/, { error: 'Monto inválido' })
+  .regex(/^\d{1,10}(\.\d{1,2})?$/, { error: 'Monto inválido', abort: true })
   .refine((value) => Number(value) > 0, { error: 'El monto debe ser mayor que 0' });
 export type Money = z.infer<typeof moneySchema>;
 

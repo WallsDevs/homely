@@ -67,3 +67,27 @@ describe('todayIn', () => {
     expect(todayIn('Europe/Madrid', instant)).toBe('2026-10-20');
   });
 });
+
+describe('meses y periodos', () => {
+  it('calcula inicio y fin de mes, incluido febrero bisiesto', async () => {
+    const { endOfMonth, startOfMonth } = await import('./dates.ts');
+    expect(startOfMonth('2026-10-19')).toBe('2026-10-01');
+    expect(endOfMonth('2026-10-19')).toBe('2026-10-31');
+    expect(endOfMonth('2028-02-10')).toBe('2028-02-29');
+    expect(endOfMonth('2026-12-05')).toBe('2026-12-31');
+  });
+
+  it('periodRange y previousPeriodDay', async () => {
+    const { periodRange, previousPeriodDay } = await import('./dates.ts');
+    expect(periodRange('WEEKLY', '2026-10-22', 'MON')).toEqual({
+      start: '2026-10-19',
+      end: '2026-10-25',
+    });
+    expect(periodRange('MONTHLY', '2026-10-22', 'MON')).toEqual({
+      start: '2026-10-01',
+      end: '2026-10-31',
+    });
+    expect(previousPeriodDay('MONTHLY', '2026-03-01')).toBe('2026-02-28');
+    expect(previousPeriodDay('WEEKLY', '2026-10-19')).toBe('2026-10-12');
+  });
+});

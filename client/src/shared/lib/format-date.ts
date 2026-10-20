@@ -48,3 +48,14 @@ export function weekRangeLabel(start: IsoDate, end: IsoDate): string {
   const from = sameMonth ? dayOnly.format(toDate(start)) : clean(dayMonth.format(toDate(start)));
   return `${from} – ${clean(dayMonth.format(toDate(end)))}`;
 }
+
+const monthYear = new Intl.DateTimeFormat('es', {
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'UTC',
+});
+
+/** «Octubre 2026». */
+export function monthLabel(day: IsoDate): string {
+  return capitalize(monthYear.format(toDate(day)).replace(' de ', ' '));
+}

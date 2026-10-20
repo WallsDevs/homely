@@ -33,3 +33,11 @@ describe('dateRangeSchema', () => {
     expect(dateRangeSchema.safeParse({ from: '2025-01-01', to: '2025-12-31' }).success).toBe(true);
   });
 });
+
+describe('moneySchema · mensajes', () => {
+  it('un formato inválido da un solo error', () => {
+    const result = moneySchema.safeParse('12,50');
+    expect(result.success).toBe(false);
+    expect(result.error?.issues).toHaveLength(1);
+  });
+});

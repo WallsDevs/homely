@@ -1,14 +1,15 @@
 import { CircleCheckBig, Plus, Wallet } from 'lucide-react';
 import type { ReactNode } from 'react';
+import { useExpenseUI } from '@/features/expenses/components/expense-ui.ts';
 import { useTaskUI } from '@/features/tasks/components/task-ui.ts';
-import { Sheet, useToast } from '@/shared/ui/index.ts';
+import { Sheet } from '@/shared/ui/index.ts';
 
 type QuickActionsProps = { open: boolean; onClose: () => void };
 
 /** Acciones rápidas (TK-09, EX-01): crear tarea o gasto en un toque desde cualquier pantalla. */
 export function QuickActions({ open, onClose }: QuickActionsProps) {
-  const toast = useToast();
   const { isAdmin, openCreate } = useTaskUI();
+  const expenseUI = useExpenseUI();
 
   return (
     <Sheet open={open} onClose={onClose} title="Crear">
@@ -28,7 +29,7 @@ export function QuickActions({ open, onClose }: QuickActionsProps) {
           label="Nuevo gasto"
           onClick={() => {
             onClose();
-            toast.show({ message: 'Registrar gastos estará disponible en la Fase 4.' });
+            expenseUI.openCreate();
           }}
         />
       </div>

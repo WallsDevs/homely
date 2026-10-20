@@ -22,3 +22,44 @@ export const MEMBER_COLORS = [
   '#7D9B5B',
   '#A47A5A',
 ] as const;
+
+/** Iconos disponibles para categorías de gasto (nombres de lucide). */
+export const CATEGORY_ICONS = [
+  'shopping-cart',
+  'utensils',
+  'fuel',
+  'car',
+  'spray-can',
+  'paw-print',
+  'plug',
+  'wifi',
+  'house',
+  'heart-pulse',
+  'pill',
+  'popcorn',
+  'shirt',
+  'baby',
+  'graduation-cap',
+  'gift',
+  'plane',
+  'dumbbell',
+  'wrench',
+  'ellipsis',
+] as const;
+export type CategoryIcon = (typeof CATEGORY_ICONS)[number];
+
+/** Paleta para categorías (12 tonos armónicos con la de miembros). */
+export const CATEGORY_COLORS = [
+  '#7D9B5B',
+  '#E07A5F',
+  '#5B8DEF',
+  '#4FA3A5',
+  '#D4A942',
+  '#8E7CC3',
+  '#C86B9B',
+  '#A47A5A',
+  '#8A8A85',
+  '#3F8F6B',
+  '#D97B3A',
+  '#6C7FD8',
+] as const;
