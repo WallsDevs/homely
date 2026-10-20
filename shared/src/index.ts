@@ -9,3 +9,4 @@ export * from './schemas/member.ts';
 export * from './schemas/invitation.ts';
 export * from './schemas/auth.ts';
 export * from './schemas/task.ts';
+export * from './schemas/plan.ts';

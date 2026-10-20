@@ -12,6 +12,8 @@ export { Select, type SelectOption } from './select.tsx';
 export { Sheet } from './sheet.tsx';
 export { PageSkeleton, Skeleton } from './skeleton.tsx';
 export { StatTile } from './stat-tile.tsx';
+export { Switch } from './switch.tsx';
 export { Textarea } from './textarea.tsx';
 export { ToastProvider, useToast } from './toast.tsx';
 export { WeekPicker } from './week-picker.tsx';
+export { WeekdayChips } from './weekday-chips.tsx';

@@ -328,6 +328,13 @@ weekEnd = weekStart + 6 días
 Toda consulta semanal usa `dueDate BETWEEN weekStart AND weekEnd`. `date-fns` con `startOfWeek(date, { weekStartsOn })` tras convertir a la zona horaria del hogar con `date-fns-tz`.
 
 ### Generación de tareas desde planes (PL-02 … PL-05)
+
+> Implementación real: `server/src/modules/plans/plan-generation.ts`. Además del índice único
+> `(planId, dueDate)`, la tabla `PlanMaterialization (planId, weekStart)` registra qué semanas ya
+> generó cada plan; solo se generan planes sin registro para esa semana. Así una tarea de plan
+> borrada a mano no reaparece. Nunca se generan días anteriores a hoy (zona del hogar).
+> Editar/pausar/eliminar un plan borra sus pendientes futuras y sus registros desde la semana
+> actual (`resetFuture`), y se regenera con la configuración nueva.
 ```
 for plan in activePlans(household):
   for weekday in plan.weekdays:

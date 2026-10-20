@@ -27,6 +27,9 @@ const TasksPage = lazy(() =>
 const BoardPage = lazy(() =>
   import('@/features/tasks/pages/board-page.tsx').then((m) => ({ default: m.BoardPage })),
 );
+const PlansPage = lazy(() =>
+  import('@/features/plans/pages/plans-page.tsx').then((m) => ({ default: m.PlansPage })),
+);
 const MembersPage = lazy(() =>
   import('@/features/members/pages/members-page.tsx').then((m) => ({ default: m.MembersPage })),
 );
@@ -48,16 +51,7 @@ const appRoutes: RouteObject[] = [
   { index: true, element: <DashboardPage /> },
   { path: 'tasks', element: <TasksPage /> },
   { path: 'tasks/board', element: <BoardPage /> },
-  {
-    path: 'plans',
-    element: (
-      <ComingSoonPage
-        title="Planes"
-        phase={3}
-        description="Tareas que se asignan solas cada semana, como sacar la basura miércoles y sábado."
-      />
-    ),
-  },
+  { path: 'plans', element: <PlansPage /> },
   {
     path: 'expenses',
     element: (

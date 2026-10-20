@@ -14,6 +14,8 @@ import type { HouseholdCtx } from '../../lib/context.ts';
 import { addDays, endOfWeek, startOfWeek, toDbDate, todayIn } from '../../lib/dates.ts';
 import { AppError } from '../../lib/errors.ts';
 import { membersRepository } from '../members/members.repository.ts';
+import { assertAssignable } from '../members/members.service.ts';
+import { materializeForView } from '../plans/plan-generation.ts';
 import { toTask } from './tasks.mappers.ts';
 import { tasksRepository, type TaskRow } from './tasks.repository.ts';
 
@@ -25,19 +27,16 @@ const OVERDUE_LIMIT = 50;
 
 const todayOf = (ctx: HouseholdCtx): IsoDate => todayIn(ctx.household.timezone);
 
+const calendarOf = (ctx: HouseholdCtx) => ({
+  id: ctx.householdId,
+  timezone: ctx.household.timezone,
+  weekStartsOn: ctx.household.weekStartsOn,
+});
+
 async function findTask(ctx: HouseholdCtx, id: string): Promise<TaskRow> {
   const task = await tasksRepository.findInHousehold(ctx.householdId, id);
   if (!task) throw AppError.notFound('Tarea');
   return task;
-}
-
-/** Solo se asigna a miembros activos del mismo hogar. */
-async function assertAssignable(ctx: HouseholdCtx, assigneeId: string | null | undefined) {
-  if (!assigneeId) return;
-  const member = await membersRepository.findInHousehold(ctx.householdId, assigneeId);
-  if (!member?.isActive) {
-    throw AppError.validation({ assigneeId: ['Elige un miembro activo del hogar'] });
-  }
 }
 
 /** TK-03 / TK-04: el asignado o un admin. */
@@ -86,6 +85,7 @@ export const tasksService = {
     const weekStart = startOfWeek(today, ctx.household.weekStartsOn);
     const weekEnd = endOfWeek(today, ctx.household.weekStartsOn);
     const mine = { householdId: ctx.householdId, assigneeId: ctx.membershipId };
+    await materializeForView(calendarOf(ctx), today);
 
     const [overdueRows, weekRows] = await Promise.all([
       tasksRepository.findMany(
@@ -111,6 +111,7 @@ export const tasksService = {
     const today = todayOf(ctx);
     const weekStart = startOfWeek(day ?? today, ctx.household.weekStartsOn);
     const weekEnd = addDays(weekStart, 6);
+    await materializeForView(calendarOf(ctx), weekStart);
 
     const [rows, members] = await Promise.all([
       tasksRepository.findMany({
@@ -155,7 +156,7 @@ export const tasksService = {
 
   /** TK-01 (solo admins, lo garantiza la ruta). */
   async create(ctx: HouseholdCtx, input: CreateTaskData): Promise<Task> {
-    await assertAssignable(ctx, input.assigneeId);
+    await assertAssignable(ctx.householdId, input.assigneeId);
     const row = await tasksRepository.create({
       householdId: ctx.householdId,
       title: input.title,
@@ -172,7 +173,7 @@ export const tasksService = {
   /** TK-02. En tareas de un plan, solo cambia esta instancia; el plan queda igual. */
   async update(ctx: HouseholdCtx, id: string, input: UpdateTaskData): Promise<Task> {
     await findTask(ctx, id);
-    await assertAssignable(ctx, input.assigneeId);
+    await assertAssignable(ctx.householdId, input.assigneeId);
     const row = await tasksRepository.update(id, {
       ...(input.title !== undefined ? { title: input.title } : {}),
       ...(input.description !== undefined ? { description: input.description } : {}),

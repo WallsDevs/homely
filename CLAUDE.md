@@ -66,7 +66,9 @@ npm run build            # shared → server → client
 
 Usuarios del seed: `iveth@homely.dev` y `luis@homely.dev`, contraseña `homely1234` (ambos ADMIN).
 
-Estado actual: **Fases 0, 1 y 2 completadas.** Siguiente: Fase 3 (planes y generación semanal) en `docs/09-roadmap.md`.
+Estado actual: **Fases 0 a 3 completadas.** Siguiente: Fase 4 (gastos, categorías y metas) en `docs/09-roadmap.md`.
+
+Planes: toda generación de tareas pasa por `server/src/modules/plans/plan-generation.ts` (`materializeWeek`, `materializeForView`, `resetFuture`). No crear tareas de plan por otra vía.
 
 Tareas en el client: `TaskUIProvider` (montado en `AppLayout`) expone `useTaskUI()` con `today`, `canResolve`, `toggle` (optimista con "Deshacer"), `openDetail`, `openCreate`, `openEdit`. Toda vista de tareas usa `TaskItem`; las cachés de tareas cuelgan de `taskKeys.all`.
 

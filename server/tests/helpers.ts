@@ -12,6 +12,7 @@ const TABLES = [
   'BudgetGoal',
   'ExpenseCategory',
   'Task',
+  'PlanMaterialization',
   'TaskPlan',
   'Invitation',
   'Membership',

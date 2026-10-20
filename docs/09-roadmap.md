@@ -45,15 +45,16 @@ Fases secuenciales. Cada una termina con criterios de "hecho" verificables y con
 
 **Hecho cuando:** un admin crea y asigna tareas desde el celular y el asignado las completa en un toque; el tablero muestra la semana por miembro ✅ (tests + prueba real contra la BD con el seed). Revisión visual pendiente de la dueña.
 
-## Fase 3 · Planes y generación semanal
+## Fase 3 · Planes y generación semanal — ✅ completada 2026-10-19
 
-**Requisitos:** PL-01 … PL-08 (◇ PL-06 rotación).
+**Requisitos:** PL-01 … PL-05, PL-07, PL-08. ◇ PL-06 (rotación) no implementada: queda como sugerencia sin confirmar.
 
-- [ ] Server: módulo `plans` (CRUD, activate/deactivate, `materializeWeek` idempotente, generación inmediata al crear/activar, limpieza de pendientes al desactivar, plan sin responsable al desactivar miembro). Job `generateWeeklyTasks` con node-cron. Generación perezosa en `tasks.list`/`board`.
-- [ ] Client: lista de planes con WeekdayChips, formulario (días, responsable ◇ rotación, prioridad, fechas), aviso de plan sin responsable en el dashboard.
-- [ ] Tests: idempotencia (ejecutar dos veces no duplica), semanas con distinto `weekStartsOn` y tz, `startsOn/endsOn`, desactivar a mitad de semana, ◇ rotación.
+- [x] Modelo `PlanMaterialization (planId, weekStart)`: registra qué semanas generó cada plan. La generación ocurre una sola vez por plan y semana, así que una tarea borrada a mano no reaparece. Migración aditiva (sin pérdida de datos).
+- [x] Server: módulo `plans` (CRUD, `PATCH /plans/:id/status`, detalle con próximas tareas). `plan-generation.ts`: `materializeWeek` idempotente (nunca días pasados, respeta `startsOn/endsOn`), generación inmediata al crear/activar, `resetFuture` al editar/pausar/eliminar (rehace pendientes futuras y conserva completadas). Generación perezosa en `tasks/mine` y `tasks/board` (semana actual y hasta 4 adelante). Job horario con node-cron que asegura la semana actual de cada hogar según su zona horaria.
+- [x] Client: pantalla de Planes (activos y en pausa, chips L M X J V S D, próxima fecha, aviso "sin responsable", interruptor para pausar), formulario (días, responsable, prioridad, notas, fechas de vigencia, eliminar). `MemberPicker` compartido con el formulario de tareas. Aviso en el Inicio de planes sin responsable (admins).
+- [x] 16 tests de integración: generación inicial, idempotencia triple (vistas + job), tarea borrada no reaparece, perezosa hasta 4 semanas, nunca semanas pasadas, editar días, pausar/activar, eliminar conservando historial, vigencia, semana domingo-sábado, responsable desactivado, job multi-hogar.
 
-**Hecho cuando:** "Sacar la basura · miércoles y sábado · Luis" genera sus dos tareas cada semana sin que nadie haga nada, y lo hace una sola vez.
+**Hecho cuando:** "Sacar la basura · miércoles y sábado · Luis" genera sus dos tareas cada semana sin que nadie haga nada, y lo hace una sola vez ✅ (tests + prueba real: la semana siguiente apareció con basura el miércoles 28 y el sábado 31 para Luis).
 
 ## Fase 4 · Gastos, categorías y metas
 

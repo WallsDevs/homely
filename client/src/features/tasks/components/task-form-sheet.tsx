@@ -1,13 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addDays, createTaskSchema, todayIn, type Task } from '@homely/shared';
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useHouseholdSession } from '@/features/auth/api/session.ts';
-import { useMembers } from '@/features/members/api/members.ts';
+import { MemberPicker } from '@/features/members/components/member-picker.tsx';
 import { cn } from '@/shared/lib/cn.ts';
 import { applyApiError } from '@/shared/lib/form-errors.ts';
 import {
-  Avatar,
   Button,
   FormAlert,
   Input,
@@ -17,7 +16,6 @@ import {
   useToast,
 } from '@/shared/ui/index.ts';
 import { useCreateTask, useUpdateTask } from '../api/tasks.ts';
-
 import type { TaskFormDefaults } from './task-ui.ts';
 
 type TaskFormSheetProps = {
@@ -54,7 +52,6 @@ function TaskForm({
   onDone: () => void;
 }) {
   const { membership, household } = useHouseholdSession();
-  const members = useMembers();
   const create = useCreateTask();
   const update = useUpdateTask();
   const toast = useToast();
@@ -130,35 +127,12 @@ function TaskForm({
         control={form.control}
         name="assigneeId"
         render={({ field }) => (
-          <fieldset>
-            <legend className="mb-2 text-small font-medium text-fg-2">Asignar a</legend>
-            <div className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1">
-              {members.data?.map((member) => (
-                <AssigneeChip
-                  key={member.id}
-                  name={field.name}
-                  label={
-                    member.id === membership.id ? `${member.displayName} (tú)` : member.displayName
-                  }
-                  checked={field.value === member.id}
-                  onSelect={() => field.onChange(member.id)}
-                >
-                  <Avatar name={member.displayName} color={member.color} size={32} />
-                </AssigneeChip>
-              ))}
-              <AssigneeChip
-                name={field.name}
-                label="Sin asignar"
-                checked={field.value === null}
-                onSelect={() => field.onChange(null)}
-              >
-                <span className="flex size-8 items-center justify-center rounded-full border-2 border-dashed border-line" />
-              </AssigneeChip>
-            </div>
-            {errors.assigneeId && (
-              <p className="mt-1 text-small text-danger">{errors.assigneeId.message}</p>
-            )}
-          </fieldset>
+          <MemberPicker
+            label="Asignar a"
+            value={field.value}
+            onChange={field.onChange}
+            error={errors.assigneeId?.message}
+          />
         )}
       />
 
@@ -233,33 +207,5 @@ function TaskForm({
         </Button>
       </div>
     </form>
-  );
-}
-
-function AssigneeChip({
-  name,
-  label,
-  checked,
-  onSelect,
-  children,
-}: {
-  name: string;
-  label: string;
-  checked: boolean;
-  onSelect: () => void;
-  children: ReactNode;
-}) {
-  return (
-    <label
-      className={cn(
-        'flex w-18 shrink-0 cursor-pointer flex-col items-center gap-1.5 rounded-md border px-1 py-2 text-center text-caption font-normal tracking-normal transition-colors',
-        'has-focus-visible:ring-2 has-focus-visible:ring-accent',
-        checked ? 'border-accent bg-accent-soft text-fg' : 'border-transparent text-fg-2',
-      )}
-    >
-      <input type="radio" name={name} checked={checked} onChange={onSelect} className="sr-only" />
-      {children}
-      <span className="w-full truncate">{label}</span>
-    </label>
   );
 }

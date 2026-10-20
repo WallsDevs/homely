@@ -1,6 +1,7 @@
 import { ChevronRight, PartyPopper, TriangleAlert, Wallet } from 'lucide-react';
 import { Link } from 'react-router';
 import { useHouseholdSession } from '@/features/auth/api/session.ts';
+import { usePlans } from '@/features/plans/api/plans.ts';
 import { useMyTasks } from '@/features/tasks/api/tasks.ts';
 import { TaskItem } from '@/features/tasks/components/task-item.tsx';
 import { TaskListSkeleton } from '@/features/tasks/components/task-list.tsx';
@@ -23,6 +24,7 @@ export function DashboardPage() {
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="flex flex-col gap-4 lg:col-span-2">
           <TodayCard />
+          <UnassignedPlansAlert />
         </div>
 
         <div className="flex flex-col gap-4">
@@ -94,6 +96,27 @@ function TodayCard() {
         )}
       </Card>
     </>
+  );
+}
+
+/** PL-08: avisa a los admins de planes activos que se quedaron sin responsable. */
+function UnassignedPlansAlert() {
+  const { isAdmin } = useHouseholdSession();
+  const plans = usePlans({ enabled: isAdmin });
+  const count = plans.data?.filter((plan) => plan.isActive && !plan.assignee).length ?? 0;
+  if (!isAdmin || count === 0) return null;
+
+  return (
+    <Link
+      to="/plans"
+      className="flex items-center gap-3 rounded-md border border-warning/30 bg-warning-soft px-4 py-3 text-warning"
+    >
+      <TriangleAlert className="size-5 shrink-0" aria-hidden />
+      <span className="flex-1 text-body font-medium">
+        {count === 1 ? '1 plan no tiene responsable' : `${count} planes no tienen responsable`}
+      </span>
+      <ChevronRight className="size-4" aria-hidden />
+    </Link>
   );
 }
 

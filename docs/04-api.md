@@ -100,8 +100,8 @@ REST + JSON bajo `/api/v1`. Toda ruta salvo `auth/*` y `health` requiere access 
 | GET | `/plans` | miembro | `?active=true` opcional |
 | POST | `/plans` | ADMIN | crear; genera tareas de la semana actual (PL-05) |
 | GET | `/plans/:id` | miembro | detalle + próximas tareas |
-| PATCH | `/plans/:id` | ADMIN | editar; si cambia `weekdays`/`assignee`, regenera futuras pendientes |
-| POST | `/plans/:id/activate` · `/deactivate` | ADMIN | PL-05 |
+| PATCH | `/plans/:id` | ADMIN | editar; rehace las tareas futuras pendientes del plan con la configuración nueva |
+| PATCH | `/plans/:id/status` | ADMIN | `{ isActive }` — PL-05 (pausar quita pendientes futuras; activar genera lo que queda de la semana) |
 | DELETE | `/plans/:id` | ADMIN | elimina plan, conserva tareas históricas |
 
 ### Expense categories
