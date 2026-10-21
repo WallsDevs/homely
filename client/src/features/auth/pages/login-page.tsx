@@ -5,10 +5,11 @@ import { useForm } from 'react-hook-form';
 import { Link, useLocation } from 'react-router';
 import { applyApiError } from '@/shared/lib/form-errors.ts';
 import { Button, FormAlert, Input } from '@/shared/ui/index.ts';
-import { useLogin } from '../api/session.ts';
+import { useAuthOptions, useLogin } from '../api/session.ts';
 
 export function LoginPage() {
   const login = useLogin();
+  const options = useAuthOptions();
   const location = useLocation();
   const [formError, setFormError] = useState<string | null>(null);
   const form = useForm({
@@ -55,12 +56,14 @@ export function LoginPage() {
         </Button>
       </form>
 
-      <p className="mt-8 text-center text-small text-fg-2">
-        ¿Aún no tienes cuenta?{' '}
-        <Link to="/register" state={location.state} className="font-medium text-accent">
-          Crear cuenta
-        </Link>
-      </p>
+      {options.data?.registrationOpen && (
+        <p className="mt-8 text-center text-small text-fg-2">
+          ¿Aún no tienes cuenta?{' '}
+          <Link to="/register" state={location.state} className="font-medium text-accent">
+            Crear cuenta
+          </Link>
+        </p>
+      )}
     </>
   );
 }

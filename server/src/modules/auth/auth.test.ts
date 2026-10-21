@@ -1,7 +1,8 @@
 import { authResponseSchema, sessionSchema } from '@homely/shared';
 import request from 'supertest';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { app, refreshCookieFrom, registerUser, resetDb } from '../../../tests/helpers.ts';
+import { env } from '../../config/env.ts';
 import { prisma } from '../../lib/prisma.ts';
 
 beforeEach(resetDb);
@@ -43,6 +44,32 @@ describe('POST /auth/register', () => {
     expect(Object.keys(res.body.error.details)).toEqual(
       expect.arrayContaining(['email', 'password']),
     );
+  });
+});
+
+describe('registro cerrado (REGISTRATION_ENABLED=false)', () => {
+  afterEach(() => {
+    env.REGISTRATION_ENABLED = true;
+  });
+
+  it('rechaza crear cuentas y lo anuncia en /auth/options; el login sigue funcionando', async () => {
+    await registerUser('Iveth', 'iveth@test.dev');
+    env.REGISTRATION_ENABLED = false;
+
+    const options = await request(app).get('/api/v1/auth/options');
+    expect(options.body).toEqual({ registrationOpen: false });
+
+    const res = await request(app)
+      .post('/api/v1/auth/register')
+      .send({ name: 'Intruso', email: 'x@test.dev', password: 'contraseña-segura' });
+    expect(res.status).toBe(403);
+    expect(res.body.error.code).toBe('REGISTRATION_CLOSED');
+    expect(await prisma.user.count({ where: { email: 'x@test.dev' } })).toBe(0);
+
+    const login = await request(app)
+      .post('/api/v1/auth/login')
+      .send({ email: 'iveth@test.dev', password: 'contraseña-segura' });
+    expect(login.status).toBe(200);
   });
 });
 

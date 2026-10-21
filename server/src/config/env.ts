@@ -19,6 +19,8 @@ const envSchema = z.object({
   RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(300),
   /** Login, registro y unirse a un hogar: más estricto contra fuerza bruta. */
   AUTH_RATE_LIMIT_PER_MINUTE: z.coerce.number().int().positive().default(10),
+  /** Registro de cuentas nuevas. Cerrado por defecto: solo entran las cuentas que ya existen. */
+  REGISTRATION_ENABLED: booleanString.default(false),
   /** Carpeta del client compilado. Si existe (producción), el server también entrega la web. */
   CLIENT_DIST_DIR: z.string().optional(),
   APP_VERSION: z.string().default(process.env['npm_package_version'] ?? '0.0.0'),

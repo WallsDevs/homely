@@ -16,7 +16,8 @@ export default defineConfig({
   ssr: { resolve: { conditions: ['source'] } },
   test: {
     environment: 'node',
-    env: { NODE_ENV: 'test', DATABASE_URL: testDatabaseUrl },
+    // Los tests crean usuarios: el registro va abierto (el cierre se prueba en auth.test.ts).
+    env: { NODE_ENV: 'test', DATABASE_URL: testDatabaseUrl, REGISTRATION_ENABLED: 'true' },
     globalSetup: ['./tests/global-setup.ts'],
     // Los tests de integración comparten la BD de test: se ejecutan en serie.
     fileParallelism: false,

@@ -55,3 +55,7 @@ export type AuthResponse = z.infer<typeof authResponseSchema>;
 
 export const refreshResponseSchema = z.object({ accessToken: z.string() });
 export type RefreshResponse = z.infer<typeof refreshResponseSchema>;
+
+/** Opciones públicas de autenticación, para que la UI sepa qué mostrar. */
+export const authOptionsSchema = z.object({ registrationOpen: z.boolean() });
+export type AuthOptions = z.infer<typeof authOptionsSchema>;

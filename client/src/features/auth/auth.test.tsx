@@ -85,8 +85,34 @@ describe('guards de rutas', () => {
 });
 
 describe('LoginPage', () => {
+  it('oculta «Crear cuenta» si el registro está cerrado', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn<typeof fetch>(() =>
+        Promise.resolve(new Response(JSON.stringify({ registrationOpen: false }))),
+      ),
+    );
+    renderWithSession(null, '/login', <LoginPage />);
+    await screen.findByRole('button', { name: 'Iniciar sesión' });
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(screen.queryByRole('link', { name: 'Crear cuenta' })).not.toBeInTheDocument();
+  });
+
+  it('muestra «Crear cuenta» si el registro está abierto', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn<typeof fetch>(() =>
+        Promise.resolve(new Response(JSON.stringify({ registrationOpen: true }))),
+      ),
+    );
+    renderWithSession(null, '/login', <LoginPage />);
+    expect(await screen.findByRole('link', { name: 'Crear cuenta' })).toBeInTheDocument();
+  });
+
   it('valida en el cliente antes de llamar al servidor', async () => {
-    const fetchMock = vi.fn<typeof fetch>();
+    const fetchMock = vi.fn<typeof fetch>(() =>
+      Promise.resolve(new Response(JSON.stringify({ registrationOpen: false }))),
+    );
     vi.stubGlobal('fetch', fetchMock);
     renderWithSession(null, '/login', <LoginPage />);
 
@@ -94,7 +120,9 @@ describe('LoginPage', () => {
 
     expect(await screen.findByText('Escribe un correo válido')).toBeInTheDocument();
     expect(screen.getByText('Escribe tu contraseña')).toBeInTheDocument();
-    expect(fetchMock).not.toHaveBeenCalled();
+    // Solo se consultan las opciones públicas; el login nunca llega al servidor.
+    const urls = fetchMock.mock.calls.map(([input]) => String(input));
+    expect(urls.some((url) => url.includes('/auth/login'))).toBe(false);
   });
 
   it('muestra el error del servidor con credenciales incorrectas', async () => {

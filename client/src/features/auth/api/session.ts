@@ -1,4 +1,5 @@
 import {
+  authOptionsSchema,
   authResponseSchema,
   sessionSchema,
   type CreateHouseholdInput,
@@ -30,6 +31,16 @@ async function fetchSession(): Promise<Session | null> {
     if (error instanceof ApiError && error.status === 401) return null;
     throw error;
   }
+}
+
+/** Si el registro de cuentas nuevas está abierto (lo decide el servidor). */
+export function useAuthOptions() {
+  return useQuery({
+    queryKey: ['auth-options'],
+    queryFn: ({ signal }) =>
+      api('/auth/options', { schema: authOptionsSchema, signal, skipAuthRefresh: true }),
+    staleTime: Infinity,
+  });
 }
 
 export function useSession() {

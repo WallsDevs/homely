@@ -5,10 +5,11 @@ import { useForm } from 'react-hook-form';
 import { Link, useLocation } from 'react-router';
 import { applyApiError } from '@/shared/lib/form-errors.ts';
 import { Button, FormAlert, Input } from '@/shared/ui/index.ts';
-import { useRegister } from '../api/session.ts';
+import { useAuthOptions, useRegister } from '../api/session.ts';
 
 export function RegisterPage() {
   const register = useRegister();
+  const options = useAuthOptions();
   const location = useLocation();
   const [formError, setFormError] = useState<string | null>(null);
   const form = useForm({
@@ -25,6 +26,20 @@ export function RegisterPage() {
       setFormError(applyApiError(error, form.setError, ['name', 'email', 'password']));
     }
   });
+
+  if (options.data && !options.data.registrationOpen) {
+    return (
+      <>
+        <h1 className="text-display">Registro cerrado</h1>
+        <p className="mt-1 mb-8 text-body text-fg-2">
+          Por ahora no se pueden crear cuentas nuevas en Homely.
+        </p>
+        <Link to="/login" className="font-medium text-accent">
+          Ir a iniciar sesión
+        </Link>
+      </>
+    );
+  }
 
   return (
     <>
