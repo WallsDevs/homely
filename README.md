@@ -79,6 +79,7 @@ TRUST_PROXY=true                 # detrás de Railway/Render/Fly/nginx
 DATABASE_URL=postgresql://...    # la de tu proveedor
 JWT_ACCESS_SECRET=...            # node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
 LOG_LEVEL=info
+REGISTRATION_ENABLED=false       # true solo mientras se crean las cuentas
 ```
 
 `CLIENT_DIST_DIR` ya viene fijado en la imagen. Las migraciones se aplican solas al arrancar (`prisma migrate deploy`).
@@ -91,6 +92,26 @@ docker run -d -p 4000:4000 --env-file .env.production homely
 ```
 
 La imagen corre como usuario sin privilegios, expone un healthcheck en `/api/v1/health` y pesa ~635 MB.
+
+### En Railway
+
+`railway.json` ya fija el build con el `Dockerfile` y el healthcheck.
+
+1. **New Project → Deploy from GitHub repo** → este repositorio.
+2. **+ New → Database → PostgreSQL**.
+3. Servicio de Homely → **Settings → Networking → Generate Domain**.
+4. Servicio de Homely → **Variables**:
+   ```
+   NODE_ENV=production
+   DATABASE_URL=${{Postgres.DATABASE_URL}}
+   CLIENT_ORIGIN=https://<tu-dominio>.up.railway.app
+   TRUST_PROXY=true
+   JWT_ACCESS_SECRET=<secreto de 48 bytes>
+   REGISTRATION_ENABLED=true
+   ```
+5. Cuando termine el deploy, `https://<tu-dominio>/api/v1/health` debe responder `ok: true`.
+6. Crea las cuentas (ver «Después de publicar») y cambia `REGISTRATION_ENABLED=false`.
+7. Postgres → **Backups**: actívalos.
 
 ### Después de publicar
 

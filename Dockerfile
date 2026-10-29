@@ -44,6 +44,6 @@ USER node
 WORKDIR /app/server
 EXPOSE 4000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s \
-  CMD wget -qO- http://localhost:4000/api/v1/health || exit 1
+  CMD wget -qO- http://localhost:${PORT}/api/v1/health || exit 1
 # Aplica migraciones pendientes y arranca. Idempotente: seguro en cada despliegue.
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/server.js"]
